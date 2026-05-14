@@ -1,0 +1,30 @@
+{
+  "topic": "Should universities ban AI in coursework?",
+  "camps": [
+    {
+      "name": "pro-ban traditionalists",
+      "target_count": 20,
+      "seeds": []
+    },
+    {
+      "name": "anti-ban accelerationists",
+      "target_count": 20,
+      "seeds": []
+    },
+    {
+      "name": "pragmatic reformers",
+      "target_count": 20,
+      "seeds": []
+    },
+    {
+      "name": "sceptical empiricists",
+      "target_count": 20,
+      "seeds": []
+    },
+    {
+      "name": "indifferent generalists",
+      "target_count": 20,
+      "seeds": []
+    }
+  ]
+}

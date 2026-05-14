@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pydantic
+anthropic
+networkx
+sentence-transformers
+scipy
+numpy

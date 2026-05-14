@@ -1,0 +1,44 @@
+.DS_Store
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+dist/
+coverage/
+*.tsbuildinfo
+
+# Local simulation outputs
+backend/runs/*.json
+!backend/runs/.gitkeep
+
+# LaTeX build outputs
+note/*.aux
+note/*.bbl
+note/*.bcf
+note/*.blg
+note/*.fdb_latexmk
+note/*.fls
+note/*.log
+note/*.out
+note/*.run.xml
+note/*.synctex.gz
+note/*.toc
+
+# Local deploy/cache state
+.vercel/
+.railway/
