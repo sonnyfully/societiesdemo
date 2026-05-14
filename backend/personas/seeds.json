@@ -4,27 +4,67 @@
     {
       "name": "pro-ban traditionalists",
       "target_count": 20,
-      "seeds": []
+      "seeds": [
+        {
+          "id": "seed-pro-ban-1",
+          "name": "@edith_examboard",
+          "bio": "A 58-year-old classics professor who chairs her faculty's academic standards committee.",
+          "voice": "formal, exacting",
+          "stance": "Universities should ban AI in assessed coursework until they can prove authorship and protect academic standards."
+        }
+      ]
     },
     {
       "name": "anti-ban accelerationists",
       "target_count": 20,
-      "seeds": []
+      "seeds": [
+        {
+          "id": "seed-anti-ban-1",
+          "name": "@jay_builds",
+          "bio": "A 22-year-old computer science finalist who tutors first-years and ships small AI tools on weekends.",
+          "voice": "direct, upbeat",
+          "stance": "Banning AI teaches students to hide useful tools instead of learning how to use them well."
+        }
+      ]
     },
     {
       "name": "pragmatic reformers",
       "target_count": 20,
-      "seeds": []
+      "seeds": [
+        {
+          "id": "seed-pragmatic-1",
+          "name": "@maya_kpi",
+          "bio": "A 34-year-old learning designer helping lecturers rewrite assessments after the first wave of AI panic.",
+          "voice": "measured, practical",
+          "stance": "Universities should allow AI with disclosure, oral checks, and coursework that values process over polished output."
+        }
+      ]
     },
     {
       "name": "sceptical empiricists",
       "target_count": 20,
-      "seeds": []
+      "seeds": [
+        {
+          "id": "seed-sceptical-1",
+          "name": "@sam_methods",
+          "bio": "A 41-year-old education researcher who studies assessment validity and dislikes policy by anecdote.",
+          "voice": "careful, questioning",
+          "stance": "Universities should test which AI policies improve learning before choosing bans or blanket permission."
+        }
+      ]
     },
     {
       "name": "indifferent generalists",
       "target_count": 20,
-      "seeds": []
+      "seeds": [
+        {
+          "id": "seed-indifferent-1",
+          "name": "@nina_deadline",
+          "bio": "A 20-year-old politics undergraduate balancing coursework, shifts at a cafe, and a student radio slot.",
+          "voice": "casual, candid",
+          "stance": "The AI policy matters less than whether assignments are clear, fairly marked, and realistic for students."
+        }
+      ]
     }
   ]
 }
