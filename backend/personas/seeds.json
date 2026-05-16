@@ -3,7 +3,7 @@
   "camps": [
     {
       "name": "pro-ban traditionalists",
-      "target_count": 20,
+      "target_count": 10,
       "seeds": [
         {
           "id": "seed-pro-ban-1",
@@ -16,7 +16,7 @@
     },
     {
       "name": "anti-ban accelerationists",
-      "target_count": 20,
+      "target_count": 10,
       "seeds": [
         {
           "id": "seed-anti-ban-1",
@@ -29,7 +29,7 @@
     },
     {
       "name": "pragmatic reformers",
-      "target_count": 20,
+      "target_count": 10,
       "seeds": [
         {
           "id": "seed-pragmatic-1",
@@ -42,7 +42,7 @@
     },
     {
       "name": "sceptical empiricists",
-      "target_count": 20,
+      "target_count": 10,
       "seeds": [
         {
           "id": "seed-sceptical-1",
@@ -55,7 +55,7 @@
     },
     {
       "name": "indifferent generalists",
-      "target_count": 20,
+      "target_count": 10,
       "seeds": [
         {
           "id": "seed-indifferent-1",

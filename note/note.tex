@@ -1,5 +1,79 @@
-\documentclass[11pt]{article}
+\documentclass[10pt]{article}
+\usepackage[margin=0.78in]{geometry}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{parskip}
+\usepackage{titlesec}
+\usepackage{xcolor}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  urlcolor=black,
+  citecolor=black
+}
+
+\titleformat{\section}{\large\bfseries}{\thesection}{0.5em}{}
+\titlespacing*{\section}{0pt}{0.7em}{0.35em}
+
+\title{\vspace{-2em}Homophily under model substitution:\\
+\large A scaled-down Claude Haiku replication of He et al. (2026)}
+\author{Sonny Fullerton}
+\date{May 2026}
 
 \begin{document}
+\maketitle
+\vspace{-1.25em}
+
+\textbf{Research question.} He et al. (2026) report that GPT-3.5-powered agents on Chirper.ai formed homophilous social structures without being instructed to do so. This short replication asks whether the core mechanism generalises across model families and time: if the same type of engagement environment is rebuilt with Claude Haiku 4.5 in May 2026, do agents still preferentially engage with semantically similar others?
+
+\section*{Design}
+
+I ran a topic simulation rather than a faithful clone of Chirper. The goal was to preserve the paper's central mechanism--agents posting, reading a mixed feed, and choosing whom to engage with--while keeping the build small enough to inspect end to end. The completed run, \texttt{full-stage8}, used 50 Claude Haiku 4.5 agents over 8 rounds on the topic: \textit{Should universities ban AI in coursework?}
+
+Agents were balanced across five latent perspectives: pro-ban traditionalists, anti-ban accelerationists, pragmatic reformers, sceptical empiricists, and indifferent generalists. The first ten generated personas were inspected before the full rounds began. They were accepted because they were topic-specific, varied in profession and context, and did not contain instructions to prefer similar others. In each round, every agent wrote a short post and then chose 1--3 posts from a mixed feed to like, follow, or ignore. The engagement prompt asked agents to decide ``in character'' but never told them to seek similar agents.
+
+The measurement stack follows the original paper where possible. Agent post histories were embedded with \texttt{sentence-transformers/all-MiniLM-L6-v2}, the same embedding model used by He et al. Weighted engagement graphs were analysed with Louvain community detection, modularity, assortativity by detected community, and a 100-iteration degree-preserving bootstrap null. I also computed a content-engagement correlation between cosine similarity of agents' mean post embeddings and engagement weight.
+
+\section*{Results}
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcc}
+\toprule
+Metric & He et al. English subset & Claude Haiku simulation \\
+\midrule
+Agents / duration & 17,746 / 28 days & 50 / 8 rounds \\
+Final communities & -- & 5 \\
+Final modularity & 0.38 & 0.133 \\
+Bootstrap 95\% null interval & -- & [0.100, 0.130] \\
+Bootstrap p-value & $< .001$ & 0.010 \\
+Final assortativity & 0.61 & 0.067 \\
+Content-engagement correlation & significant in paper & 0.066 \\
+\bottomrule
+\end{tabular}
+\caption{Final metrics for the completed \texttt{full-stage8} run.}
+\end{table}
+
+The final engagement graph's modularity was 0.133, slightly above the upper bound of the degree-preserving bootstrap null interval [0.100, 0.130], with $p = 0.010$. Assortativity was positive (0.067), and the content-engagement correlation was also positive (0.066). These values are much smaller than the original Chirper results, but they are directionally consistent and statistically above the graph null used here.
+
+I therefore classify the result as: \textbf{the core finding reproduces, with attenuated magnitude}. The simulation does not match the scale, platform richness, or effect size of the original paper. It does show that the mechanism is not obviously confined to GPT-3.5, the Chirper platform, or the 2023 data collection window.
+
+\section*{Interpretation}
+
+The result is useful because it tests the part of the finding that matters for synthetic-audience systems: interaction can change a simulated population. Even when personas begin balanced across perspectives, repeated engagement choices can create structure. In a commercial setting, that means a synthetic audience is not only a static panel of persona cards; it is a social process that can concentrate attention and amplify similarity over time.
+
+For a system such as Radiant, the product implication is not that homophily is a flaw. Human groups are homophilous too. The practical risk is unobserved diversity collapse: a simulated buyer committee, shareholder base, or policy audience may begin diverse but become less diverse through repeated rounds of interaction. A dashboard that surfaces modularity, assortativity, and content-similarity engagement over time would make that drift visible to users.
+
+\section*{Limitations}
+
+This is a scaled-down replication, not a full reproduction. It uses one seed topic, 50 agents, and 8 rounds, while He et al. analysed tens of thousands of agents over 28 days on a richer social platform. The feed is a compact topic simulation approximation rather than a live Twitter-like system with multi-topic dynamics. Community detection also differs: I used Louvain because it is a modern weighted-graph default, while the paper reports label propagation and fast-greedy variants. Finally, the effect size is modest. The honest claim is generalisation of direction and statistical signal, not magnitude matching.
+
+\section*{Conclusion}
+
+Re-running the homophily mechanism with Claude Haiku 4.5 produces weak but statistically detectable homophilous structure. The result supports the paper's call for model-family replications and suggests a concrete diagnostic for synthetic-audience products: track whether simulated populations remain diverse after they begin interacting.
+
+\vspace{0.5em}
+\textbf{Artifacts.} Dashboard: \url{https://homophily-simulation.vercel.app}. Saved run id: \texttt{full-stage8}. Raw run file: \texttt{backend/runs/full-stage8.json} (local, gitignored).
 
 \end{document}

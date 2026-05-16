@@ -10,15 +10,39 @@ Each entry: date, decision, reasoning. Do not deviate without amending here.
 
 ## 2026-05-14 — interaction surface
 
-**Decision:** Topic salon, not faithful mini-Chirper, not pairwise.
+**Decision:** Topic simulation, not faithful mini-Chirper, not pairwise.
 
 **Reasoning:** Preserves the paper's homophily mechanism (agents choose what to engage with based on similarity) while avoiding 4+ hours of Twitter-clone plumbing. Also maps more directly to Artificial Societies' commercial use case (small targeted audiences reacting to a seed topic, like Radiant).
 
 ## 2026-05-14 — scale
 
-**Decision:** 100 agents, 8 rounds.
+**Decision:** Superseded on 2026-05-15. Original plan was 100 agents, 8 rounds.
 
 **Reasoning:** Cost ceiling (~$1.50 per full run). Statistically sufficient to detect homophily effect if it exists — the paper's effect sizes are large. Honestly reportable as a "scaled-down replication" in the note.
+
+## 2026-05-15 — reduced experiment scale
+
+**Decision:** 50 agents, 8 rounds, balanced as 5 camps × 10 personas each.
+
+**Reasoning:** Keeps the replication lightweight enough for the 20-hour build while preserving the balanced latent-camp structure and enough observations for the bootstrap null distribution.
+
+## 2026-05-15 — prompt caching
+
+**Decision:** Use Anthropic ephemeral prompt caching on stable persona identity blocks for post-generation and engagement-decision calls. Round-specific context stays uncached.
+
+**Reasoning:** Persona text is stable within each agent's session, while past posts, recent feed, and numbered engagement posts change every round. Caching the stable block reduces input-token cost without changing the round dynamics.
+
+## 2026-05-15 — run budget cap
+
+**Decision:** Enforce a $5 hard cap per run, counting standard input, cache writes, cache reads, and output tokens separately.
+
+**Reasoning:** The cap catches accidental runaway loops or prompt inflation. If it trips, the backend saves the partial run state before aborting.
+
+## 2026-05-15 — FastAPI spend guard
+
+**Decision:** `POST /runs` must reject by default unless the request body includes `confirm_spend: true`.
+
+**Reasoning:** The project has an $8 total Anthropic account budget. API access should make accidental live Claude runs difficult while still preserving a deliberate development path.
 
 ## 2026-05-14 — stack
 

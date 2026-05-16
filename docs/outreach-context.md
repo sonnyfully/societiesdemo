@@ -55,8 +55,8 @@ I'm Sonny, a freshman at Wharton (Stats + CIS). Read your BJP paper on AI
 chatbot societies last week and got curious about something your discussion
 section flagged: whether the homophily result holds across model families.
 
-So I built a scaled-down replication. 100 Claude Haiku 4.5 agents in a
-topic-salon environment, 8 rounds, same metrics as your paper (modularity,
+So I built a scaled-down replication. 50 Claude Haiku 4.5 agents in a
+topic simulation environment, 8 rounds, same metrics as your paper (modularity,
 assortativity, content–engagement correlation). The finding reproduces,
 with [headline result].
 

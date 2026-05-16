@@ -3,13 +3,13 @@
 ## Repo structure
 
 ```
-homophily-salon/
+homophily-simulation/
 ├── AGENTS.md
 ├── README.md
 ├── backend/
 │   ├── AGENTS.md
 │   ├── main.py              # FastAPI app, 3 endpoints
-│   ├── salon.py             # Core simulation loop
+│   ├── simulation.py             # Core simulation loop
 │   ├── agents.py            # Persona generation + Claude calls
 │   ├── metrics.py           # Modularity, assortativity, embeddings
 │   ├── models.py            # Pydantic data models
@@ -21,11 +21,11 @@ homophily-salon/
 │   ├── AGENTS.md
 │   ├── app/
 │   │   ├── page.tsx
-│   │   ├── salon/page.tsx
+│   │   ├── simulation/page.tsx
 │   │   ├── results/[id]/page.tsx
 │   │   └── api/
 │   ├── components/
-│   │   ├── SalonFeed.tsx
+│   │   ├── SimulationFeed.tsx
 │   │   ├── NetworkGraph.tsx
 │   │   ├── MetricsPanel.tsx
 │   │   └── EmbeddingMap.tsx
@@ -43,7 +43,7 @@ homophily-salon/
 ## The simulation loop
 
 ```
-1. Generate 100 persona prompts spanning 4–5 latent camps on the seed topic
+1. Generate 50 persona prompts spanning 5 latent camps on the seed topic
 2. For each of 8 rounds:
    For each agent:
      a. Agent posts a 1–2 sentence response, with their full prior history
@@ -64,9 +64,9 @@ homophily-salon/
 
 ## Cost estimate
 
-100 agents × 8 rounds × ~2 Haiku calls per agent per round = 1,600 API calls.
-At Haiku 4.5 pricing (~$1/M input, $5/M output), ~500 input / 100 output tokens per call.
-Approximate cost per full run: $1.50. Budget allows 3–4 full runs.
+50 agents × 8 rounds × ~2 Haiku calls per agent per round = 800 API calls.
+At Haiku 4.5 pricing (~$1/M standard input, $1.25/M cache writes, $0.10/M cache reads, $5/M output), ~500 input / 100 output tokens per call.
+Approximate cost per full run: under $1 before retries. A $5 hard cap aborts runaway runs after saving partial state.
 
 ## Time budget
 
@@ -74,7 +74,7 @@ Approximate cost per full run: $1.50. Budget allows 3–4 full runs.
 |---|---|
 | Backend: persona generation + agent loop | 5 |
 | Backend: metrics + bootstrap | 2 |
-| Frontend: landing + salon view | 4 |
+| Frontend: landing + simulation view | 4 |
 | Frontend: results page + UMAP viz | 3 |
 | Run the experiment + tune | 2 |
 | Research note (LaTeX, figure, table) | 3 |
@@ -85,12 +85,12 @@ Stretch: "drop your own message" mode (+2h). Do not start until everything else 
 
 ## Build order
 
-1. Persona seeds (hand-curated, 5 first, then 100)
+1. Persona seeds (hand-curated, 5 first, then 50)
 2. Smoke test: 5 agents, 2 rounds, end-to-end
 3. Metrics module with synthetic input
-4. Scale to 100 agents, 8 rounds
+4. Scale to 50 agents, 8 rounds
 5. Frontend landing + results page (static, reading saved JSON)
-6. Frontend salon view (live or simulated-live)
+6. Frontend simulation view (live or simulated-live)
 7. Research note
 8. Deploy
 9. Loom walkthrough
@@ -100,7 +100,7 @@ Each step ships before the next starts. No parallelism.
 ## API endpoints
 
 ```
-POST /runs              # Start a new run. Returns run_id immediately, runs async.
+POST /runs              # Start a new run only with confirm_spend=true. Returns run_id immediately, runs async.
 GET  /runs/{run_id}     # Get run metadata + current round + metrics
 GET  /runs/{run_id}/feed?round=N
 GET  /runs/{run_id}/graph?round=N

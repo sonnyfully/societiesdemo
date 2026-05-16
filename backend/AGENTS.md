@@ -7,7 +7,7 @@ This directory contains the FastAPI server, the simulation engine, and the metri
 ## Files and their responsibilities
 
 - `main.py` — FastAPI app, route handlers, no business logic
-- `salon.py` — the simulation loop, orchestrates rounds and agents
+- `simulation.py` — the simulation loop, orchestrates rounds and agents
 - `agents.py` — Claude API calls, persona generation, post generation, engagement decisions
 - `metrics.py` — pure functions for stats. No I/O. No API calls.
 - `models.py` — Pydantic models. Single source of truth for data shapes.

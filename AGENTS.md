@@ -1,4 +1,4 @@
-# Homophily salon — agent instructions
+# Homophily simulation — agent instructions
 
 ## What this project is
 

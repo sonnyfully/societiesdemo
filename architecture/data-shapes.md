@@ -57,6 +57,7 @@ class RoundMetrics(BaseModel):
     modularity_p: float
     assortativity: float
     content_engagement_correlation: float
+    cost_usd: float
 ```
 
 ## Run
@@ -71,6 +72,7 @@ class Run(BaseModel):
     completed_at: datetime | None
     status: Literal["pending", "running", "complete", "failed"]
     cost_usd: float
+    total_cost_usd: float
     personas: list[Persona]
     rounds: list[RoundSnapshot]
 ```
@@ -78,6 +80,10 @@ class Run(BaseModel):
 ## File format
 
 `runs/{run_id}.json` is a serialised `Run` model. Pretty-printed for human inspection during development. Compact in production.
+
+## API additions
+
+`backend/models.py` also defines Pydantic response shapes for run creation, enriched feed items, graph nodes/edges, round metric points, and analysis embeddings. `POST /runs` requires `confirm_spend: true`; otherwise the API rejects without starting a live Claude run.
 
 ## Frontend types
 

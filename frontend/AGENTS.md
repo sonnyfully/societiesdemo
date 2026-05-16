@@ -7,12 +7,12 @@ Next.js 14 App Router, TypeScript, Tailwind. Reads pre-computed simulation runs 
 ## Pages
 
 - `app/page.tsx` — landing. Hero, thesis sentence, "start a run" CTA, link to research note.
-- `app/salon/page.tsx` — live salon view. Left: post feed. Right: metrics + small network graph.
+- `app/simulation/page.tsx` — live simulation view. Left: post feed. Right: metrics + small network graph.
 - `app/results/[id]/page.tsx` — post-run analysis. Force-directed community graph, UMAP embedding map, headline numbers, comparison table.
 
 ## Components
 
-- `SalonFeed.tsx` — vertical feed of recent posts. Posts colour-shift over rounds as the agent joins a community.
+- `SimulationFeed.tsx` — vertical feed of recent posts. Posts colour-shift over rounds as the agent joins a community.
 - `NetworkGraph.tsx` — d3-force graph. Nodes coloured by detected community. Edge thickness = engagement weight.
 - `MetricsPanel.tsx` — modularity, assortativity, content correlation. Numbers update each round.
 - `EmbeddingMap.tsx` — 2D UMAP projection of agent post embeddings, coloured by community. Mirrors Figure 2b of the paper.

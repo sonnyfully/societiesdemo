@@ -28,12 +28,13 @@
 ### Starting a run (only used during development; in production, runs are pre-computed)
 
 ```
-1. POST /runs with { topic, n_agents, n_rounds }
+1. POST /runs with { topic, n_agents, n_rounds, confirm_spend: true }
 2. Backend generates UUID, starts async task, returns { run_id }
 3. Async task:
    a. Generate personas (1 Claude call per persona × N agents)
    b. For each round:
       - For each agent: 2 Claude calls (post + engagement)
+      - Cache stable persona prompt blocks; keep round-specific context uncached
       - Update graph
       - Compute metrics
       - Snapshot to runs/{run_id}.json
@@ -81,4 +82,4 @@ Concurrency cap: 20 simultaneous Claude calls. Higher risks rate limits.
 
 - Claude API failure → exponential backoff (1s, 2s, 4s, 8s), then skip that agent for that phase. Log it.
 - Process crash mid-round → on restart, read the last snapshot from `runs/{run_id}.json`, resume from the next phase.
-- Cost overrun → hard-stop at $5 per run. Save partial state. Surface in the UI.
+- Cost overrun → hard-stop at $5 per run. Save partial state and surface the failed run status in the UI.

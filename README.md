@@ -135,12 +135,12 @@ Do not run another paid Claude experiment for deployment. Production should serv
 
 ### Backend: Railway
 
-Create a Railway project from the GitHub repository and configure the backend service:
+Create a Railway project from the GitHub repository and configure the backend service. The repo includes `railway.json`, so these commands should be picked up automatically, but keep the dashboard settings aligned with them:
 
 ```txt
-Root directory: backend
-Build command: pip install -r requirements.txt && python preload_model.py
-Start command: uvicorn main:app --host 0.0.0.0 --port $PORT
+Root directory: .
+Build command: python -m pip install -r requirements.txt && python backend/preload_model.py
+Start command: python -m uvicorn backend.main:app --host 0.0.0.0 --port $PORT
 ```
 
 Set the Python version:

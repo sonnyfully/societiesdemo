@@ -1,4 +1,4 @@
-"""Pydantic data contracts for homophily salon runs."""
+"""Pydantic data contracts for homophily simulation runs."""
 
 from __future__ import annotations
 
@@ -47,6 +47,7 @@ class RoundMetrics(StrictBaseModel):
     modularity_p: float
     assortativity: float
     content_engagement_correlation: float
+    cost_usd: float
 
 
 class RoundSnapshot(StrictBaseModel):
@@ -65,8 +66,77 @@ class Run(StrictBaseModel):
     completed_at: Optional[datetime]
     status: Literal["pending", "running", "complete", "failed"]
     cost_usd: float
+    total_cost_usd: float
     personas: list[Persona]
     rounds: list[RoundSnapshot]
+
+
+class RunCreateRequest(StrictBaseModel):
+    topic: Optional[str] = None
+    n_agents: int = 50
+    n_rounds: int = 8
+    confirm_spend: bool = False
+
+
+class RunCreateResponse(StrictBaseModel):
+    run_id: str
+    status: Literal["pending", "running"]
+
+
+class FeedItem(StrictBaseModel):
+    post_id: str
+    agent_id: str
+    agent_name: str
+    agent_camp: str
+    round: int
+    content: str
+    timestamp: datetime
+    like_count: int
+    follow_count: int
+    ignore_count: int
+    engagement_count: int
+
+
+class GraphNode(StrictBaseModel):
+    id: str
+    name: str
+    camp: str
+    community: int
+    post_count: int
+
+
+class GraphEdge(StrictBaseModel):
+    source: str
+    target: str
+    weight: float
+
+
+class GraphResponse(StrictBaseModel):
+    run_id: str
+    round: int
+    nodes: list[GraphNode]
+    edges: list[GraphEdge]
+
+
+class RoundMetricPoint(StrictBaseModel):
+    round: int
+    metrics: RoundMetrics
+
+
+class AgentEmbedding(StrictBaseModel):
+    agent_id: str
+    embedding: list[float]
+
+
+class AnalysisResponse(StrictBaseModel):
+    run_id: str
+    status: Literal["pending", "running", "complete", "failed"]
+    topic: str
+    per_round_metrics: list[RoundMetricPoint]
+    final_metrics: Optional[RoundMetrics]
+    communities: dict[str, int]
+    embeddings: list[AgentEmbedding]
+    embeddings_available: bool
 
 
 def _sample_run() -> Run:
@@ -101,6 +171,7 @@ def _sample_run() -> Run:
         modularity_p=1.0,
         assortativity=0.0,
         content_engagement_correlation=0.0,
+        cost_usd=0.0,
     )
     return Run(
         id="run-1",
@@ -111,6 +182,7 @@ def _sample_run() -> Run:
         completed_at=timestamp,
         status="complete",
         cost_usd=0.0,
+        total_cost_usd=0.0,
         personas=[persona],
         rounds=[
             RoundSnapshot(

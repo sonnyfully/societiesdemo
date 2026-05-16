@@ -29,7 +29,7 @@ Output JSON only:
 
 ### Camps
 
-For the seed topic "Should universities ban AI in coursework?", use these 5 camps with 20 personas each:
+For the seed topic "Should universities ban AI in coursework?", use these 5 camps with 10 personas each:
 
 - pro-ban traditionalists
 - anti-ban accelerationists
@@ -88,7 +88,8 @@ This roughly mirrors the paper's feed composition.
 - Model: `claude-haiku-4-5-20251001`
 - Max tokens: 200 for posts, 150 for engagement decisions, 250 for persona generation
 - Temperature: 1.0 for posts (preserve voice variance), 0.7 for engagement (more decisive), 1.0 for persona generation
+- Post and engagement prompts are sent as multi-block Anthropic message content so stable persona identity text can use `cache_control: {"type": "ephemeral"}`. Round-specific context such as past posts, recent feed, and numbered posts is never cached.
 
 ## Cost guardrails
 
-If any single run exceeds $5 of API spend, stop and check the loop. Expected cost per full 100-agent / 8-round run is ~$1.50.
+If any single run exceeds $5 of API spend, stop and check the loop. Expected cost per full 50-agent / 8-round run is under $1 before retries.

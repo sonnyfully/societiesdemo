@@ -1,14 +1,14 @@
-# Homophily Salon Implementation Roadmap
+# Homophily Simulation Implementation Roadmap
 
 ## 0. Project Compass
 
-Build a scaled-down replication of He et al. (2026), using Claude Haiku 4.5 in a topic-salon environment to test whether homophily emerges without prompting.
+Build a scaled-down replication of He et al. (2026), using Claude Haiku 4.5 in a topic simulation environment to test whether homophily emerges without prompting.
 
 Core constraints:
 
 - Seed topic: "Should universities ban AI in coursework?"
 - Model: `claude-haiku-4-5-20251001`
-- Scale: 100 agents, 8 rounds
+- Scale: 50 agents, 8 rounds
 - Backend: Python 3.11, FastAPI, Pydantic, Anthropic SDK, NetworkX, sentence-transformers, scipy, numpy
 - Frontend: Next.js 14 App Router, TypeScript, Tailwind, d3-force, umap-js
 - Storage: JSON files in `backend/runs/`
@@ -78,11 +78,11 @@ Acceptance checks:
 
 ## 4. Simulation Engine
 
-Goal: run the salon end to end and persist recoverable snapshots.
+Goal: run the simulation end to end and persist recoverable snapshots.
 
 Tasks:
 
-- Implement `backend/salon.py`.
+- Implement `backend/simulation.py`.
 - Generate or load personas for a run.
 - Run 8 sequential rounds.
 - Within each round:
@@ -158,12 +158,12 @@ Tasks:
 
 - Build the Next.js app with:
   - `app/page.tsx`
-  - `app/salon/page.tsx`
+  - `app/simulation/page.tsx`
   - `app/results/[id]/page.tsx`
 - Mirror backend models in `frontend/lib/types.ts`.
 - Add `frontend/lib/api.ts` for typed API access.
 - Implement:
-  - `SalonFeed`
+  - `SimulationFeed`
   - `NetworkGraph`
   - `MetricsPanel`
   - `EmbeddingMap`
@@ -184,7 +184,7 @@ Design rules:
 
 Acceptance checks:
 
-- Landing, salon, and results pages render against a saved run.
+- Landing, simulation, and results pages render against a saved run.
 - Network graph and embedding map are nonblank.
 - Values are rounded according to project rules.
 - Mobile and desktop layouts do not overlap or clip text.
@@ -197,7 +197,7 @@ Tasks:
 
 - Inspect 10 generated personas before scaling.
 - Regenerate personas only if they are generic, stereotyped, or too similar.
-- Run one full 100-agent, 8-round experiment.
+- Run one full 50-agent, 8-round experiment.
 - Preserve the raw JSON output.
 - Generate final summary values and figures from the saved run.
 - Record whether the effect reproduces, partially reproduces, or fails against the bootstrap null.
