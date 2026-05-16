@@ -12,8 +12,8 @@ export default function NotePage(): JSX.Element {
         <Link href="/" className="text-sm text-slate hover:text-ink focus-visible:outline-ink">
           Homophily Simulation
         </Link>
-        <p className="mt-8 text-sm uppercase tracking-normal text-slate">Research note</p>
-        <h1 className="mt-3 text-4xl font-medium leading-tight tracking-normal text-ink md:text-5xl">
+        <p className="eyebrow mt-8">Research note</p>
+        <h1 className="mt-3 text-4xl font-medium leading-tight tracking-normal text-ink md:text-6xl">
           Homophily under model substitution
         </h1>
         <p className="mt-4 max-w-3xl text-base leading-7 text-slate">
@@ -22,19 +22,19 @@ export default function NotePage(): JSX.Element {
         <div className="mt-5 flex flex-wrap gap-3">
           <Link
             href={simulationHref}
-            className="inline-flex min-h-11 items-center rounded border-[0.5px] border-ink px-4 text-sm font-medium text-ink hover:bg-ink hover:text-white focus-visible:outline-ink"
+            className="button-primary"
           >
             Replay run
           </Link>
           <Link
             href={resultsHref}
-            className="inline-flex min-h-11 items-center rounded border-[0.5px] border-line px-4 text-sm font-medium text-ink hover:border-ink focus-visible:outline-ink"
+            className="button-secondary"
           >
             View analysis
           </Link>
           <a
             href="/note.pdf"
-            className="inline-flex min-h-11 items-center rounded border-[0.5px] border-line px-4 text-sm font-medium text-ink hover:border-ink focus-visible:outline-ink"
+            className="button-secondary"
           >
             Open PDF
           </a>
@@ -69,7 +69,7 @@ export default function NotePage(): JSX.Element {
         </p>
       </MemoSection>
 
-      <section className="rounded border-[0.5px] border-line bg-white p-5">
+      <section className="panel p-5">
         <h2 className="text-xl font-medium text-ink">Results</h2>
         <div className="mt-4 overflow-x-auto">
           <table className="w-full min-w-[38rem] border-collapse text-left text-sm">
@@ -136,7 +136,7 @@ function MemoSection({ children, title }: { children: React.ReactNode; title: st
 }
 
 function Code({ children }: { children: React.ReactNode }): JSX.Element {
-  return <code className="rounded border-[0.5px] border-line px-1.5 py-0.5 text-[0.85em] text-ink">{children}</code>;
+  return <code className="rounded-md border-[0.5px] border-line bg-white px-1.5 py-0.5 text-[0.85em] text-ink">{children}</code>;
 }
 
 function MemoRow({ metric, reference, value }: { metric: string; reference: string; value: string }): JSX.Element {

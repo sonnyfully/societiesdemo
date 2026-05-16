@@ -8,13 +8,13 @@ export default function Page(): JSX.Element {
   const resultsHref = `/results/${encodeURIComponent(defaultRunId)}`;
 
   return (
-    <main className="min-h-screen bg-white text-ink">
+    <main className="min-h-screen bg-[#fbfbf8] text-ink">
       <section className="mx-auto grid min-h-[92vh] w-full max-w-6xl content-center gap-10 px-5 py-12 md:px-8">
-        <nav className="flex flex-wrap items-center justify-between gap-4 text-sm">
+        <nav className="flex flex-wrap items-center justify-between gap-4 border-b-[0.5px] border-line pb-5 text-sm">
           <Link href="/" className="font-medium focus-visible:outline-ink">
             Homophily Simulation
           </Link>
-          <div className="flex flex-wrap gap-4 text-slate">
+          <div className="flex flex-wrap gap-5 text-slate">
             <Link href={simulationHref} className="hover:text-ink focus-visible:outline-ink">
               Simulation
             </Link>
@@ -27,60 +27,65 @@ export default function Page(): JSX.Element {
           </div>
         </nav>
 
-        <div className="grid gap-10 lg:grid-cols-[1.05fr_0.95fr] lg:items-end">
+        <div className="grid gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:items-end">
           <div>
-            <p className="text-sm uppercase tracking-normal text-slate">Claude Haiku 4.5 replication</p>
-            <h1 className="mt-4 max-w-4xl text-5xl font-medium leading-tight tracking-normal md:text-7xl">
+            <p className="eyebrow">Claude Haiku 4.5 replication</p>
+            <h1 className="mt-5 max-w-4xl text-5xl font-medium leading-[0.98] tracking-normal md:text-7xl">
               Homophily under model substitution
             </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate">
+            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate md:text-xl">
               A scaled-down topic simulation tests whether LLM agents preferentially engage with
               semantically similar others when the model family changes from GPT-3.5 to Claude Haiku 4.5.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Link
                 href={simulationHref}
-                className="inline-flex min-h-11 items-center rounded border-[0.5px] border-ink px-4 text-sm font-medium text-ink hover:bg-ink hover:text-white focus-visible:outline-ink"
+                className="button-primary"
               >
                 Replay full run
               </Link>
               <Link
                 href="/note"
-                className="inline-flex min-h-11 items-center rounded border-[0.5px] border-line px-4 text-sm font-medium text-ink hover:border-ink focus-visible:outline-ink"
+                className="button-secondary"
               >
                 Read research note
               </Link>
             </div>
           </div>
 
-          <form action="/simulation" className="rounded border-[0.5px] border-line bg-white p-5">
-            <label htmlFor="runId" className="text-sm font-medium text-ink">
-              Open a saved run
-            </label>
-            <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-              <select
-                id="runId"
-                name="runId"
-                defaultValue={defaultRunId}
-                className="min-h-11 flex-1 rounded border-[0.5px] border-line bg-white px-3 text-sm text-ink"
-              >
-                {SAVED_RUN_OPTIONS.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.label}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="submit"
-                className="min-h-11 rounded border-[0.5px] border-ink px-4 text-sm font-medium text-ink hover:bg-ink hover:text-white focus-visible:outline-ink"
-              >
-                View simulation
-              </button>
+          <div className="panel overflow-hidden">
+            <div className="grid grid-cols-3 border-b-[0.5px] border-line text-center">
+              <ResultStat label="Agents" value="100" />
+              <ResultStat label="Rounds" value="12" />
+              <ResultStat label="p-value" value="< 0.001" />
             </div>
-            <p className="mt-3 text-sm leading-6 text-slate">
-              Runs are loaded from the FastAPI backend using saved experiment data. The canonical run is preselected.
-            </p>
-          </form>
+            <div className="p-5">
+              <p className="eyebrow">Canonical result</p>
+              <p className="mt-3 text-2xl font-medium leading-snug text-ink">
+                Reproduces, with attenuated magnitude.
+              </p>
+              <p className="mt-3 text-sm leading-6 text-slate">
+                Final modularity sits above the degree-preserving bootstrap null, while assortativity and content-engagement correlation remain weakly positive.
+              </p>
+              <form action="/simulation" className="mt-6 border-t-[0.5px] border-line pt-5">
+                <label htmlFor="runId" className="text-sm font-medium text-ink">
+                  Open a saved run
+                </label>
+                <div className="mt-3 flex flex-col gap-3 sm:flex-row">
+                  <select id="runId" name="runId" defaultValue={defaultRunId} className="field flex-1">
+                    {SAVED_RUN_OPTIONS.map((option) => (
+                      <option key={option.id} value={option.id}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                  <button type="submit" className="button-secondary min-h-11">
+                    View
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
 
         <div className="grid gap-4 border-t-[0.5px] border-line pt-8 md:grid-cols-3">
@@ -93,10 +98,19 @@ export default function Page(): JSX.Element {
   );
 }
 
+function ResultStat({ label, value }: { label: string; value: string }): JSX.Element {
+  return (
+    <div className="border-r-[0.5px] border-line p-4 last:border-r-0">
+      <p className="text-xs text-slate">{label}</p>
+      <p className="mt-1 text-xl font-medium tabular-nums text-ink">{value}</p>
+    </div>
+  );
+}
+
 function Feature({ label, text }: { label: string; text: string }): JSX.Element {
   return (
-    <div className="rounded border-[0.5px] border-line bg-white p-5">
-      <h2 className="text-sm font-medium text-ink">{label}</h2>
+    <div className="panel p-5">
+      <h2 className="text-xs font-medium uppercase tracking-[0.14em] text-ink">{label}</h2>
       <p className="mt-3 text-sm leading-6 text-slate">{text}</p>
     </div>
   );

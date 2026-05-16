@@ -2,6 +2,7 @@
 
 import { forceCenter, forceCollide, forceLink, forceManyBody, forceSimulation, type SimulationLinkDatum, type SimulationNodeDatum } from "d3-force";
 import { useMemo, useState } from "react";
+import { formatInteger } from "../lib/format";
 import type { GraphEdge, GraphNode } from "../lib/types";
 
 const COMMUNITY_COLORS = ["#9f2d55", "#3f7a58", "#2e7f8f", "#a46a22", "#4f5f6a", "#7a4f8f"];
@@ -39,14 +40,20 @@ export function NetworkGraph({ nodes, edges, compact = false }: NetworkGraphProp
   }
 
   return (
-    <figure className="rounded border-[0.5px] border-line bg-white p-4">
+    <figure className="panel overflow-hidden">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b-[0.5px] border-line px-4 py-3">
+        <p className="text-sm font-medium text-ink">Engagement graph</p>
+        <p className="text-xs tabular-nums text-slate">
+          {formatInteger(nodes.length)} agents · {formatInteger(edges.length)} edges
+        </p>
+      </div>
       <svg
-        className="h-full min-h-72 w-full"
+        className="h-full min-h-72 w-full p-3"
         viewBox={`0 0 ${WIDTH} ${height}`}
         role="img"
         aria-label="Weighted engagement network. Nodes are agents, edges are likes or follows, and colour plus hover labels indicate detected communities."
       >
-        <rect width={WIDTH} height={height} fill="#ffffff" />
+        <rect width={WIDTH} height={height} fill="#fbfbf8" />
         {layout.links.map((link, index) => {
           const source = endpointNode(link.source);
           const target = endpointNode(link.target);
@@ -108,11 +115,11 @@ export function NetworkGraph({ nodes, edges, compact = false }: NetworkGraphProp
         ))}
       </svg>
       {!compact ? (
-        <figcaption className="mt-3 flex flex-wrap gap-2 text-xs text-slate">
+        <figcaption className="flex flex-wrap gap-2 border-t-[0.5px] border-line px-4 py-3 text-xs text-slate">
           {communities.map((community) => (
-            <span key={community.id} className="inline-flex items-center gap-2 rounded border-[0.5px] border-line px-2 py-1">
+            <span key={community.id} className="inline-flex items-center gap-2 rounded-full border-[0.5px] border-line bg-white px-2 py-1">
               <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: communityColor(community.id) }} />
-              Community {community.id}: {community.count}
+              Community {community.id}: {formatInteger(community.count)}
             </span>
           ))}
         </figcaption>

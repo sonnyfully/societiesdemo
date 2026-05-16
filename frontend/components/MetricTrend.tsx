@@ -14,6 +14,7 @@ export function MetricTrend({ points, metric, label }: MetricTrendProps): JSX.El
   const range = max - min || 1;
   const width = 320;
   const height = 84;
+  const finalValue = values.length ? values[values.length - 1] : 0;
   const coordinates = values.map((value, index) => {
     const x = values.length === 1 ? width / 2 : (index / (values.length - 1)) * width;
     const y = height - ((value - min) / range) * (height - 14) - 7;
@@ -21,12 +22,10 @@ export function MetricTrend({ points, metric, label }: MetricTrendProps): JSX.El
   });
 
   return (
-    <div className="rounded border-[0.5px] border-line bg-white p-4">
+    <div className="panel p-4">
       <div className="flex items-baseline justify-between gap-3">
         <h3 className="text-sm font-medium text-ink">{label}</h3>
-        <span className="text-sm text-slate">
-          {values.length ? formatMetric(values[values.length - 1]) : "0.00"}
-        </span>
+        <span className="text-sm tabular-nums text-slate">{formatMetric(finalValue)}</span>
       </div>
       <svg
         className="mt-4 h-24 w-full overflow-visible"
@@ -34,6 +33,8 @@ export function MetricTrend({ points, metric, label }: MetricTrendProps): JSX.El
         role="img"
         aria-label={`${label} over simulation rounds`}
       >
+        <line x1="0" x2={width} y1="7" y2="7" stroke="#efefea" />
+        <line x1="0" x2={width} y1={height / 2} y2={height / 2} stroke="#efefea" />
         <line x1="0" x2={width} y1={height - 7} y2={height - 7} stroke="#d8d8d2" />
         {coordinates.length > 1 ? (
           <polyline
@@ -46,9 +47,13 @@ export function MetricTrend({ points, metric, label }: MetricTrendProps): JSX.El
         ) : null}
         {coordinates.map((coordinate, index) => {
           const [x, y] = coordinate.split(",").map(Number);
-          return <circle key={`${coordinate}-${index}`} cx={x} cy={y} r="3" fill="#9f2d55" />;
+          return <circle key={`${coordinate}-${index}`} cx={x} cy={y} r={index === coordinates.length - 1 ? "4" : "2.5"} fill="#141414" />;
         })}
       </svg>
+      <div className="mt-2 flex justify-between text-xs text-slate">
+        <span>Round 1</span>
+        <span>Round {points.length}</span>
+      </div>
     </div>
   );
 }

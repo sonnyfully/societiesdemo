@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ApiError, getDashboardData, getDefaultRunId } from "../../lib/api";
-import { formatDate, formatInteger } from "../../lib/format";
+import { formatInteger } from "../../lib/format";
 import { SAVED_RUN_OPTIONS, savedRunOrCanonical } from "../../lib/runs";
 import type { DashboardData } from "../../lib/types";
 import { MetricTrend } from "../../components/MetricTrend";
@@ -121,18 +121,15 @@ export default function SimulationPage(): JSX.Element {
           <Link href="/" className="text-sm text-slate hover:text-ink focus-visible:outline-ink">
             Homophily Simulation
           </Link>
-          <h1 className="mt-3 text-4xl font-medium tracking-normal text-ink">Simulation playback</h1>
+          <p className="eyebrow mt-8">Replay surface</p>
+          <h1 className="mt-3 text-4xl font-medium leading-tight tracking-normal text-ink md:text-5xl">Simulation playback</h1>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-slate">{data.run.topic}</p>
           <RunSwitchForm selectedRunId={runId} />
         </div>
-        <div className="text-sm leading-6 text-slate md:text-right">
-          <p>
-            Status: <span className="text-ink">{data.run.status}</span>
-          </p>
-          <p>Started: {formatDate(data.run.started_at)}</p>
-          <p>
-            {formatInteger(data.run.personas.length)} agents · {formatInteger(data.run.rounds.length)} saved rounds
-          </p>
+        <div className="grid grid-cols-3 overflow-hidden rounded-md border-[0.5px] border-line bg-white text-sm md:min-w-96">
+          <RunFact label="Status" value={data.run.status} />
+          <RunFact label="Agents" value={formatInteger(data.run.personas.length)} />
+          <RunFact label="Rounds" value={formatInteger(data.run.rounds.length)} />
         </div>
       </header>
 
@@ -187,19 +184,28 @@ function parseRoundParam(value: string | null): number | undefined {
 }
 
 function Shell({ children }: { children: React.ReactNode }): JSX.Element {
-  return <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-5 py-8 md:px-8">{children}</main>;
+  return <main className="page-shell">{children}</main>;
+}
+
+function RunFact({ label, value }: { label: string; value: string }): JSX.Element {
+  return (
+    <div className="border-r-[0.5px] border-line p-4 last:border-r-0">
+      <p className="text-xs uppercase tracking-[0.12em] text-slate">{label}</p>
+      <p className="mt-2 font-medium tabular-nums text-ink">{value}</p>
+    </div>
+  );
 }
 
 function EmptyRunState(): JSX.Element {
   const defaultRunId = savedRunOrCanonical(getDefaultRunId());
   return (
-    <section className="rounded border-[0.5px] border-line bg-white p-6">
+    <section className="panel p-6">
       <h1 className="text-3xl font-medium text-ink">Open a saved simulation run</h1>
       <form action="/simulation" className="mt-5 flex max-w-xl flex-col gap-3 sm:flex-row">
         <select
           name="runId"
           defaultValue={defaultRunId}
-          className="min-h-11 flex-1 rounded border-[0.5px] border-line bg-white px-3 text-sm text-ink"
+          className="field flex-1"
         >
           {SAVED_RUN_OPTIONS.map((option) => (
             <option key={option.id} value={option.id}>
@@ -207,7 +213,7 @@ function EmptyRunState(): JSX.Element {
             </option>
           ))}
         </select>
-        <button type="submit" className="min-h-11 rounded border-[0.5px] border-ink px-4 text-sm font-medium hover:bg-ink hover:text-white">
+        <button type="submit" className="button-primary">
           View simulation
         </button>
       </form>
@@ -222,7 +228,7 @@ function RunSwitchForm({ selectedRunId }: { selectedRunId: string }): JSX.Elemen
         aria-label="Saved run"
         name="runId"
         defaultValue={savedRunOrCanonical(selectedRunId)}
-        className="min-h-10 flex-1 rounded border-[0.5px] border-line bg-white px-3 text-sm text-ink"
+        className="field min-h-10 flex-1"
       >
         {SAVED_RUN_OPTIONS.map((option) => (
           <option key={option.id} value={option.id}>
@@ -232,7 +238,7 @@ function RunSwitchForm({ selectedRunId }: { selectedRunId: string }): JSX.Elemen
       </select>
       <button
         type="submit"
-        className="min-h-10 rounded border-[0.5px] border-line px-4 text-sm font-medium text-ink hover:border-ink focus-visible:outline-ink"
+        className="button-secondary min-h-10"
       >
         Switch run
       </button>
@@ -268,10 +274,10 @@ function ReplayControls({
   const progressValue = rounds.length > 1 ? currentIndex : 0;
 
   return (
-    <section className="rounded border-[0.5px] border-line bg-white p-4" aria-label="Replay controls">
+    <section className="panel p-4" aria-label="Replay controls">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.12em] text-slate">Replay</p>
+          <p className="eyebrow">Replay</p>
           <p className="mt-1 text-lg font-medium text-ink">Round {currentRound}</p>
         </div>
 
@@ -280,7 +286,7 @@ function ReplayControls({
             type="button"
             onClick={() => onRoundChange(previousRound ?? firstRound)}
             disabled={isFirstRound || isLoading}
-            className="min-h-10 rounded border-[0.5px] border-line px-3 text-sm text-ink hover:border-ink disabled:cursor-not-allowed disabled:text-slate focus-visible:outline-ink"
+            className="button-secondary min-h-10 px-3 disabled:cursor-not-allowed disabled:text-slate"
           >
             Prev
           </button>
@@ -288,7 +294,7 @@ function ReplayControls({
             type="button"
             onClick={() => onPlayChange(!isPlaying)}
             disabled={isFinalRound && !isPlaying}
-            className="min-h-10 min-w-24 rounded border-[0.5px] border-ink bg-ink px-4 text-sm font-medium text-white hover:bg-white hover:text-ink disabled:cursor-not-allowed disabled:border-line disabled:bg-mist disabled:text-slate focus-visible:outline-ink"
+            className="button-primary min-h-10 min-w-24 disabled:cursor-not-allowed disabled:border-line disabled:bg-mist disabled:text-slate"
           >
             {isPlaying ? "Pause" : "Play"}
           </button>
@@ -296,11 +302,11 @@ function ReplayControls({
             type="button"
             onClick={() => onRoundChange(nextRound ?? currentRound)}
             disabled={isFinalRound || isLoading}
-            className="min-h-10 rounded border-[0.5px] border-line px-3 text-sm text-ink hover:border-ink disabled:cursor-not-allowed disabled:text-slate focus-visible:outline-ink"
+            className="button-secondary min-h-10 px-3 disabled:cursor-not-allowed disabled:text-slate"
           >
             Next
           </button>
-          <label className="flex min-h-10 items-center gap-2 rounded border-[0.5px] border-line px-3 text-sm text-slate">
+          <label className="flex min-h-10 items-center gap-2 rounded-md border-[0.5px] border-line bg-white px-3 text-sm text-slate">
             Speed
             <select
               value={playbackDelayMs}
@@ -331,7 +337,7 @@ function ReplayControls({
               key={round}
               type="button"
               onClick={() => onRoundChange(round)}
-              className={`min-h-9 rounded border-[0.5px] px-3 text-sm focus-visible:outline-ink ${
+              className={`min-h-9 rounded-full border-[0.5px] px-3 text-sm focus-visible:outline-ink ${
                 round === currentRound ? "border-ink bg-ink text-white" : "border-line bg-white text-ink hover:border-ink"
               }`}
             >
@@ -357,7 +363,7 @@ function ErrorState({ error, selectedRunId }: { error: unknown; selectedRunId: s
 
 function StatusMessage({ title, text }: { title: string; text: string }): JSX.Element {
   return (
-    <section className="rounded border-[0.5px] border-line bg-white p-6">
+    <section className="panel p-6">
       <h1 className="text-3xl font-medium text-ink">{title}</h1>
       <p className="mt-3 max-w-2xl text-sm leading-6 text-slate">{text}</p>
     </section>
@@ -366,16 +372,16 @@ function StatusMessage({ title, text }: { title: string; text: string }): JSX.El
 
 function SimulationSkeleton(): JSX.Element {
   return (
-    <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-5 py-8 md:px-8">
-      <div className="h-28 animate-pulse rounded border-[0.5px] border-line bg-mist" />
+    <main className="page-shell">
+      <div className="h-28 animate-pulse rounded-md border-[0.5px] border-line bg-mist" />
       <div className="flex gap-2">
         {Array.from({ length: 5 }).map((_, index) => (
-          <div key={index} className="h-10 w-24 animate-pulse rounded bg-mist" />
+          <div key={index} className="h-10 w-24 animate-pulse rounded-md bg-mist" />
         ))}
       </div>
       <section className="grid gap-5 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="h-[36rem] animate-pulse rounded border-[0.5px] border-line bg-mist" />
-        <div className="h-[36rem] animate-pulse rounded border-[0.5px] border-line bg-mist" />
+        <div className="h-[36rem] animate-pulse rounded-md border-[0.5px] border-line bg-mist" />
+        <div className="h-[36rem] animate-pulse rounded-md border-[0.5px] border-line bg-mist" />
       </section>
     </main>
   );

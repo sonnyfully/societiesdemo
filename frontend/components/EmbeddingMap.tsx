@@ -2,6 +2,7 @@
 
 import { UMAP } from "umap-js";
 import { useEffect, useState } from "react";
+import { formatInteger } from "../lib/format";
 import type { AgentEmbedding, Persona } from "../lib/types";
 
 const COMMUNITY_COLORS = ["#9f2d55", "#3f7a58", "#2e7f8f", "#a46a22", "#4f5f6a", "#7a4f8f"];
@@ -48,7 +49,7 @@ export function EmbeddingMap({
 
   if (!available) {
     return (
-      <section className="flex min-h-72 items-center justify-center rounded border-[0.5px] border-line bg-white p-6 text-center text-sm leading-6 text-slate">
+      <section className="panel flex min-h-72 items-center justify-center p-6 text-center text-sm leading-6 text-slate">
         Embeddings are not available yet. Preload all-MiniLM-L6-v2, then request analysis for a saved run.
       </section>
     );
@@ -56,62 +57,70 @@ export function EmbeddingMap({
 
   if (points.length === 0) {
     return (
-      <section className="flex min-h-72 items-center justify-center rounded border-[0.5px] border-line bg-white p-6 text-center text-sm leading-6 text-slate">
+      <section className="panel flex min-h-72 items-center justify-center p-6 text-center text-sm leading-6 text-slate">
         Projecting embeddings.
       </section>
     );
   }
 
+  const communitySummary = summarizeCommunities(points);
+
   return (
-    <figure className="rounded border-[0.5px] border-line bg-white p-4">
+    <figure className="panel overflow-hidden">
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b-[0.5px] border-line px-4 py-3">
+        <p className="text-sm font-medium text-ink">Semantic projection</p>
+        <p className="text-xs tabular-nums text-slate">{formatInteger(points.length)} embedded agents</p>
+      </div>
       <svg
-        className="h-full min-h-72 w-full"
+        className="h-full min-h-72 w-full p-3"
         viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
         role="img"
         aria-label="UMAP projection of agent post embeddings. Points are coloured by detected community and labelled on hover."
       >
-        <rect width={WIDTH} height={HEIGHT} fill="#ffffff" />
-        {points.map((point) => (
-          <g
-            key={point.agentId}
-            onMouseEnter={() => setHovered(point)}
-            onMouseLeave={() => setHovered(null)}
-            tabIndex={0}
-            role="listitem"
-            aria-label={`${point.label}, ${point.camp}, community ${point.community}`}
-            className="outline-none"
-          >
-            <circle
-              cx={point.x}
-              cy={point.y}
-              r={hovered?.agentId === point.agentId ? 8 : 6}
-              fill={communityColor(point.community)}
-              stroke="#141414"
-              strokeWidth="0.75"
-            />
-            {hovered?.agentId === point.agentId ? (
-              <g>
-                <rect
-                  x={point.x + 12}
-                  y={point.y - 28}
-                  width="190"
-                  height="44"
-                  rx="4"
-                  fill="#ffffff"
-                  stroke="#d8d8d2"
-                  strokeWidth="0.5"
-                />
-                <text x={point.x + 22} y={point.y - 10} fontSize="12" fill="#141414">
-                  {point.label}
-                </text>
-                <text x={point.x + 22} y={point.y + 6} fontSize="11" fill="#4f5f6a">
-                  Community {point.community} · {point.camp.slice(0, 24)}
-                </text>
-              </g>
-            ) : null}
-          </g>
-        ))}
+        <rect width={WIDTH} height={HEIGHT} fill="#fbfbf8" />
+        {points.map((point) => {
+          const tooltip = tooltipPosition(point);
+          return (
+            <g
+              key={point.agentId}
+              onMouseEnter={() => setHovered(point)}
+              onMouseLeave={() => setHovered(null)}
+              tabIndex={0}
+              role="listitem"
+              aria-label={`${point.label}, ${point.camp}, community ${point.community}`}
+              className="outline-none"
+            >
+              <circle
+                cx={point.x}
+                cy={point.y}
+                r={hovered?.agentId === point.agentId ? 8 : 6}
+                fill={communityColor(point.community)}
+                stroke="#141414"
+                strokeWidth="0.75"
+              />
+              {hovered?.agentId === point.agentId ? (
+                <g>
+                  <rect x={tooltip.x} y={tooltip.y} width="190" height="44" rx="4" fill="#ffffff" stroke="#d8d8d2" strokeWidth="0.5" />
+                  <text x={tooltip.x + 10} y={tooltip.y + 18} fontSize="12" fill="#141414">
+                    {point.label}
+                  </text>
+                  <text x={tooltip.x + 10} y={tooltip.y + 34} fontSize="11" fill="#4f5f6a">
+                    Community {point.community} · {point.camp.slice(0, 24)}
+                  </text>
+                </g>
+              ) : null}
+            </g>
+          );
+        })}
       </svg>
+      <figcaption className="flex flex-wrap gap-2 border-t-[0.5px] border-line px-4 py-3 text-xs text-slate">
+        {communitySummary.map((community) => (
+          <span key={community.id} className="inline-flex items-center gap-2 rounded-full border-[0.5px] border-line bg-white px-2 py-1">
+            <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: communityColor(community.id) }} />
+            Community {community.id}: {formatInteger(community.count)}
+          </span>
+        ))}
+      </figcaption>
     </figure>
   );
 }
@@ -180,6 +189,23 @@ function communityColor(community: number): string {
     return "#9a9a90";
   }
   return COMMUNITY_COLORS[community % COMMUNITY_COLORS.length];
+}
+
+function summarizeCommunities(points: ProjectedPoint[]): Array<{ id: number; count: number }> {
+  const counts = new Map<number, number>();
+  points.forEach((point) => counts.set(point.community, (counts.get(point.community) ?? 0) + 1));
+  return Array.from(counts, ([id, count]) => ({ id, count })).sort((a, b) => a.id - b.id);
+}
+
+function tooltipPosition(point: ProjectedPoint): { x: number; y: number } {
+  return {
+    x: clamp(point.x + 12, 8, WIDTH - 198),
+    y: clamp(point.y - 28, 8, HEIGHT - 52)
+  };
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
 }
 
 function seededRandom(seed: number): () => number {

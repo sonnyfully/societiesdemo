@@ -9,11 +9,11 @@ interface MetricsPanelProps {
 export function MetricsPanel({ metrics, title = "Metrics" }: MetricsPanelProps): JSX.Element {
   if (!metrics) {
     return (
-      <section className="rounded border-[0.5px] border-line bg-white p-5">
+      <section className="panel p-5">
         <h2 className="text-base font-medium text-ink">{title}</h2>
         <div className="mt-5 grid gap-3 sm:grid-cols-2">
           {Array.from({ length: 6 }).map((_, index) => (
-            <div key={index} className="h-20 animate-pulse rounded bg-mist" />
+            <div key={index} className="h-20 animate-pulse rounded-md bg-mist" />
           ))}
         </div>
       </section>
@@ -30,13 +30,21 @@ export function MetricsPanel({ metrics, title = "Metrics" }: MetricsPanelProps):
   ];
 
   return (
-    <section className="rounded border-[0.5px] border-line bg-white p-5">
-      <h2 className="text-base font-medium text-ink">{title}</h2>
-      <dl className="mt-5 grid gap-3 sm:grid-cols-2">
-        {items.map(([label, value]) => (
-          <div key={label} className="rounded border-[0.5px] border-line bg-white p-4">
-            <dt className="text-xs uppercase tracking-normal text-slate">{label}</dt>
-            <dd className="mt-2 text-2xl font-medium text-ink">{value}</dd>
+    <section className="panel p-5">
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <h2 className="text-base font-medium text-ink">{title}</h2>
+        <p className="text-xs text-slate">Cumulative through selected round</p>
+      </div>
+      <dl className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {items.map(([label, value], index) => (
+          <div
+            key={label}
+            className={`rounded-md border-[0.5px] p-4 ${
+              index === 0 ? "border-ink bg-ink text-white sm:col-span-2 xl:col-span-1" : "border-line bg-white text-ink"
+            }`}
+          >
+            <dt className={`text-xs uppercase tracking-[0.12em] ${index === 0 ? "text-white/70" : "text-slate"}`}>{label}</dt>
+            <dd className={`mt-2 font-medium tabular-nums ${index === 0 ? "text-3xl text-white" : "text-2xl text-ink"}`}>{value}</dd>
           </div>
         ))}
       </dl>
