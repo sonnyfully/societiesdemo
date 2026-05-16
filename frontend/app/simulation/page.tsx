@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ApiError, getDashboardData, getDefaultRunId } from "../../lib/api";
 import { formatDate, formatInteger } from "../../lib/format";
+import { SAVED_RUN_OPTIONS, savedRunOrCanonical } from "../../lib/runs";
 import type { DashboardData } from "../../lib/types";
 import { MetricTrend } from "../../components/MetricTrend";
 import { MetricsPanel } from "../../components/MetricsPanel";
@@ -108,7 +109,7 @@ export default function SimulationPage(): JSX.Element {
   if (error || !data) {
     return (
       <Shell>
-        <ErrorState error={error} />
+        <ErrorState error={error} selectedRunId={runId} />
       </Shell>
     );
   }
@@ -122,6 +123,7 @@ export default function SimulationPage(): JSX.Element {
           </Link>
           <h1 className="mt-3 text-4xl font-medium tracking-normal text-ink">Simulation playback</h1>
           <p className="mt-3 max-w-3xl text-sm leading-6 text-slate">{data.run.topic}</p>
+          <RunSwitchForm selectedRunId={runId} />
         </div>
         <div className="text-sm leading-6 text-slate md:text-right">
           <p>
@@ -189,20 +191,52 @@ function Shell({ children }: { children: React.ReactNode }): JSX.Element {
 }
 
 function EmptyRunState(): JSX.Element {
+  const defaultRunId = savedRunOrCanonical(getDefaultRunId());
   return (
     <section className="rounded border-[0.5px] border-line bg-white p-6">
       <h1 className="text-3xl font-medium text-ink">Open a saved simulation run</h1>
       <form action="/simulation" className="mt-5 flex max-w-xl flex-col gap-3 sm:flex-row">
-        <input
+        <select
           name="runId"
-          placeholder="backend run id"
-          className="min-h-11 flex-1 rounded border-[0.5px] border-line px-3 text-sm text-ink placeholder:text-slate"
-        />
+          defaultValue={defaultRunId}
+          className="min-h-11 flex-1 rounded border-[0.5px] border-line bg-white px-3 text-sm text-ink"
+        >
+          {SAVED_RUN_OPTIONS.map((option) => (
+            <option key={option.id} value={option.id}>
+              {option.label}
+            </option>
+          ))}
+        </select>
         <button type="submit" className="min-h-11 rounded border-[0.5px] border-ink px-4 text-sm font-medium hover:bg-ink hover:text-white">
           View simulation
         </button>
       </form>
     </section>
+  );
+}
+
+function RunSwitchForm({ selectedRunId }: { selectedRunId: string }): JSX.Element {
+  return (
+    <form action="/simulation" className="mt-4 flex max-w-xl flex-col gap-3 sm:flex-row">
+      <select
+        aria-label="Saved run"
+        name="runId"
+        defaultValue={savedRunOrCanonical(selectedRunId)}
+        className="min-h-10 flex-1 rounded border-[0.5px] border-line bg-white px-3 text-sm text-ink"
+      >
+        {SAVED_RUN_OPTIONS.map((option) => (
+          <option key={option.id} value={option.id}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <button
+        type="submit"
+        className="min-h-10 rounded border-[0.5px] border-line px-4 text-sm font-medium text-ink hover:border-ink focus-visible:outline-ink"
+      >
+        Switch run
+      </button>
+    </form>
   );
 }
 
@@ -310,10 +344,15 @@ function ReplayControls({
   );
 }
 
-function ErrorState({ error }: { error: unknown }): JSX.Element {
+function ErrorState({ error, selectedRunId }: { error: unknown; selectedRunId: string }): JSX.Element {
   const title = error instanceof ApiError && error.code === "run_not_found" ? "Run not found" : "Simulation data unavailable";
   const text = error instanceof Error ? error.message : "The backend did not return a readable response.";
-  return <StatusMessage title={title} text={text} />;
+  return (
+    <>
+      <StatusMessage title={title} text={text} />
+      <RunSwitchForm selectedRunId={selectedRunId} />
+    </>
+  );
 }
 
 function StatusMessage({ title, text }: { title: string; text: string }): JSX.Element {

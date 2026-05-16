@@ -108,8 +108,8 @@ def build_pdf() -> None:
             "I ran a topic simulation rather than a faithful clone of Chirper. The "
             "goal was to preserve the paper's central mechanism--agents posting, reading a "
             "mixed feed, and choosing whom to engage with--while keeping the build small "
-            "enough to inspect end to end. The completed run, full-stage8, used 50 Claude "
-            "Haiku 4.5 agents over 8 rounds on the topic: Should universities ban AI in "
+            "enough to inspect end to end. The completed canonical run, full-100x12, used "
+            "100 Claude Haiku 4.5 agents over 12 rounds on the topic: Should universities ban AI in "
             "coursework?",
             styles["NoteBody"],
         ),
@@ -137,13 +137,13 @@ def build_pdf() -> None:
     table = Table(
         [
             ["Metric", "He et al. English subset", "Claude Haiku simulation"],
-            ["Agents / duration", "17,746 / 28 days", "50 / 8 rounds"],
-            ["Final communities", "--", "5"],
-            ["Final modularity", "0.38", "0.133"],
-            ["Bootstrap 95% null interval", "--", "[0.100, 0.130]"],
-            ["Bootstrap p-value", "< .001", "0.010"],
-            ["Final assortativity", "0.61", "0.067"],
-            ["Content-engagement correlation", "significant in paper", "0.066"],
+            ["Agents / duration", "17,746 / 28 days", "100 / 12 rounds"],
+            ["Final communities", "--", "7"],
+            ["Final modularity", "0.38", "0.131"],
+            ["Bootstrap 95% null interval", "--", "[0.101, 0.117]"],
+            ["Bootstrap p-value", "< .001", "0.000"],
+            ["Final assortativity", "0.61", "0.069"],
+            ["Content-engagement correlation", "significant in paper", "0.018"],
         ],
         colWidths=[2.15 * inch, 2.1 * inch, 2.0 * inch],
     )
@@ -170,10 +170,10 @@ def build_pdf() -> None:
             table,
             Spacer(1, 6),
             Paragraph(
-                "The final engagement graph's modularity was 0.133, slightly above the "
-                "upper bound of the degree-preserving bootstrap null interval [0.100, "
-                "0.130], with p = 0.010. Assortativity was positive (0.067), and the "
-                "content-engagement correlation was also positive (0.066). These values "
+                "The final engagement graph's modularity was 0.131, above the upper bound "
+                "of the degree-preserving bootstrap null interval [0.101, 0.117], with "
+                "p = 0.000 at three decimals. Assortativity was positive (0.069), and the "
+                "content-engagement correlation was also positive but weak (0.018). These values "
                 "are much smaller than the original Chirper results, but they are "
                 "directionally consistent and statistically above the graph null used here.",
                 styles["NoteBody"],
@@ -208,7 +208,7 @@ def build_pdf() -> None:
             Paragraph("Limitations", styles["NoteHeading"]),
             Paragraph(
                 "This is a scaled-down replication, not a full reproduction. It uses one seed "
-                "topic, 50 agents, and 8 rounds, while He et al. analysed tens of thousands of "
+                "topic, 100 agents, and 12 rounds, while He et al. analysed tens of thousands of "
                 "agents over 28 days on a richer social platform. The feed is a compact "
                 "topic simulation approximation rather than a live Twitter-like system with "
                 "multi-topic dynamics. Community detection also differs: I used Louvain because "
@@ -228,7 +228,7 @@ def build_pdf() -> None:
             ),
             Paragraph(
                 "<b>Artifacts.</b> Dashboard: https://societiesdemo-egqj7tmwe-sonnyfully12-icloudcoms-projects.vercel.app. "
-                "Saved run id: full-stage8. Raw run file: backend/runs/full-stage8.json.",
+                "Saved run id: full-100x12. Raw run file: backend/runs/full-100x12.json.",
                 styles["NoteBody"],
             ),
         ]

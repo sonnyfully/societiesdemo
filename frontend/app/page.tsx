@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { getDefaultRunId } from "../lib/api";
+import { SAVED_RUN_OPTIONS, savedRunOrCanonical } from "../lib/runs";
 
 export default function Page(): JSX.Element {
-  const defaultRunId = getDefaultRunId();
-  const simulationHref = defaultRunId ? `/simulation?runId=${encodeURIComponent(defaultRunId)}` : "/simulation";
-  const resultsHref = defaultRunId ? `/results/${encodeURIComponent(defaultRunId)}` : null;
+  const defaultRunId = savedRunOrCanonical(getDefaultRunId());
+  const simulationHref = `/simulation?runId=${encodeURIComponent(defaultRunId)}`;
+  const resultsHref = `/results/${encodeURIComponent(defaultRunId)}`;
 
   return (
     <main className="min-h-screen bg-white text-ink">
@@ -17,11 +18,9 @@ export default function Page(): JSX.Element {
             <Link href={simulationHref} className="hover:text-ink focus-visible:outline-ink">
               Simulation
             </Link>
-            {resultsHref ? (
-              <Link href={resultsHref} className="hover:text-ink focus-visible:outline-ink">
-                Results
-              </Link>
-            ) : null}
+            <Link href={resultsHref} className="hover:text-ink focus-visible:outline-ink">
+              Results
+            </Link>
             <Link href="/note" className="hover:text-ink focus-visible:outline-ink">
               Research note
             </Link>
@@ -59,13 +58,18 @@ export default function Page(): JSX.Element {
               Open a saved run
             </label>
             <div className="mt-3 flex flex-col gap-3 sm:flex-row">
-              <input
+              <select
                 id="runId"
                 name="runId"
-                defaultValue={defaultRunId ?? ""}
-                placeholder="backend run id"
-                className="min-h-11 flex-1 rounded border-[0.5px] border-line px-3 text-sm text-ink placeholder:text-slate"
-              />
+                defaultValue={defaultRunId}
+                className="min-h-11 flex-1 rounded border-[0.5px] border-line bg-white px-3 text-sm text-ink"
+              >
+                {SAVED_RUN_OPTIONS.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
               <button
                 type="submit"
                 className="min-h-11 rounded border-[0.5px] border-ink px-4 text-sm font-medium text-ink hover:bg-ink hover:text-white focus-visible:outline-ink"
@@ -74,7 +78,7 @@ export default function Page(): JSX.Element {
               </button>
             </div>
             <p className="mt-3 text-sm leading-6 text-slate">
-              Runs are loaded from the FastAPI backend using saved experiment data.
+              Runs are loaded from the FastAPI backend using saved experiment data. The canonical run is preselected.
             </p>
           </form>
         </div>

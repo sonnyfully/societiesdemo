@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getDefaultRunId } from "../../lib/api";
 
 export default function NotePage(): JSX.Element {
-  const runId = getDefaultRunId() ?? "full-stage8";
+  const runId = getDefaultRunId() ?? "full-100x12";
   const simulationHref = `/simulation?runId=${encodeURIComponent(runId)}`;
   const resultsHref = `/results/${encodeURIComponent(runId)}`;
 
@@ -54,7 +54,7 @@ export default function NotePage(): JSX.Element {
       <MemoSection title="Design">
         <p>
           I ran a topic simulation rather than a faithful clone of Chirper. The completed run,{" "}
-          <Code>full-stage8</Code>, used 50 Claude Haiku 4.5 agents over 8 rounds on the topic:{" "}
+          <Code>full-100x12</Code>, used 100 Claude Haiku 4.5 agents over 12 rounds on the topic:{" "}
           <span className="text-ink">Should universities ban AI in coursework?</span>
         </p>
         <p>
@@ -81,20 +81,20 @@ export default function NotePage(): JSX.Element {
               </tr>
             </thead>
             <tbody className="divide-y-[0.5px] divide-line">
-              <MemoRow metric="Agents / duration" reference="17,746 / 28 days" value="50 / 8 rounds" />
-              <MemoRow metric="Final communities" reference="-" value="5" />
-              <MemoRow metric="Final modularity" reference="0.38" value="0.133" />
-              <MemoRow metric="Bootstrap 95% null interval" reference="-" value="[0.100, 0.130]" />
-              <MemoRow metric="Bootstrap p-value" reference="< .001" value="0.010" />
-              <MemoRow metric="Final assortativity" reference="0.61" value="0.067" />
-              <MemoRow metric="Content-engagement correlation" reference="significant in paper" value="0.066" />
+              <MemoRow metric="Agents / duration" reference="17,746 / 28 days" value="100 / 12 rounds" />
+              <MemoRow metric="Final communities" reference="-" value="7" />
+              <MemoRow metric="Final modularity" reference="0.38" value="0.131" />
+              <MemoRow metric="Bootstrap 95% null interval" reference="-" value="[0.101, 0.117]" />
+              <MemoRow metric="Bootstrap p-value" reference="< .001" value="0.000" />
+              <MemoRow metric="Final assortativity" reference="0.61" value="0.069" />
+              <MemoRow metric="Content-engagement correlation" reference="significant in paper" value="0.018" />
             </tbody>
           </table>
         </div>
         <p className="mt-4 text-sm leading-6 text-slate">
           Classification: <span className="font-medium text-ink">reproduces, with attenuated magnitude</span>.
-          The effect is much smaller than the original Chirper result, but the final modularity is above the
-          bootstrap null and the direction of the other metrics is consistent.
+          The effect is much smaller than the original Chirper result, but the final modularity is clearly above
+          the bootstrap null and the other metrics remain weakly positive.
         </p>
       </section>
 
@@ -115,7 +115,7 @@ export default function NotePage(): JSX.Element {
 
       <MemoSection title="Limitations">
         <p>
-          This is a scaled-down replication, not a full reproduction. It uses one seed topic, 50 agents, and 8
+          This is a scaled-down replication, not a full reproduction. It uses one seed topic, 100 agents, and 12
           rounds, while He et al. analysed tens of thousands of agents over 28 days on a richer social
           platform. The feed is a compact topic simulation approximation rather than a live Twitter-like system.
           Community detection also differs: I used Louvain because it is a modern weighted-graph default,

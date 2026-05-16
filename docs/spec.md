@@ -43,8 +43,8 @@ homophily-simulation/
 ## The simulation loop
 
 ```
-1. Generate 50 persona prompts spanning 5 latent camps on the seed topic
-2. For each of 8 rounds:
+1. Generate 100 persona prompts spanning 5 latent camps on the seed topic
+2. For each of 12 rounds:
    For each agent:
      a. Agent posts a 1–2 sentence response, with their full prior history
         + persona in context
@@ -64,9 +64,8 @@ homophily-simulation/
 
 ## Cost estimate
 
-50 agents × 8 rounds × ~2 Haiku calls per agent per round = 800 API calls.
-At Haiku 4.5 pricing (~$1/M standard input, $1.25/M cache writes, $0.10/M cache reads, $5/M output), ~500 input / 100 output tokens per call.
-Approximate cost per full run: under $1 before retries. A $5 hard cap aborts runaway runs after saving partial state.
+100 agents x 12 rounds x ~2 Haiku calls per agent per round = 2,400 API calls.
+At Haiku 4.5 pricing (~$1/M standard input, $1.25/M cache writes, $0.10/M cache reads, $5/M output), the completed canonical run cost $3.416. A $5 hard cap aborts runaway runs after saving partial state.
 
 ## Time budget
 
@@ -88,7 +87,7 @@ Stretch: "drop your own message" mode (+2h). Do not start until everything else 
 1. Persona seeds (hand-curated, 5 first, then 50)
 2. Smoke test: 5 agents, 2 rounds, end-to-end
 3. Metrics module with synthetic input
-4. Scale to 50 agents, 8 rounds
+4. Scale to 100 agents, 12 rounds
 5. Frontend landing + results page (static, reading saved JSON)
 6. Frontend simulation view (live or simulated-live)
 7. Research note
@@ -111,10 +110,10 @@ For the 20-hour build, the dashboard can read pre-computed runs from disk rather
 
 ## Deployment
 
-- Frontend: Vercel from `frontend/`, with `NEXT_PUBLIC_DEFAULT_RUN_ID=full-stage8` and `NEXT_PUBLIC_API_BASE_URL=https://societiesdemo-production.up.railway.app`.
+- Frontend: Vercel from `frontend/`, with `NEXT_PUBLIC_DEFAULT_RUN_ID=full-100x12` and `NEXT_PUBLIC_API_BASE_URL=https://societiesdemo-production.up.railway.app`.
 - Backend: Railway from the repo root. `railway.json` defines the Railpack build/start commands, root `requirements.txt` enables Python dependency detection, and `backend/preload_model.py` preloads MiniLM at build time.
-- `ANTHROPIC_API_KEY` is not required for the presentation deployment because production serves the saved `full-stage8` JSON. Set it only if deliberately enabling live paid runs.
-- The completed run `backend/runs/full-stage8.json` is force-tracked for production serving.
+- `ANTHROPIC_API_KEY` is not required for the presentation deployment because production serves the saved `full-100x12` JSON. Set it only if deliberately enabling live paid runs.
+- The completed run `backend/runs/full-100x12.json` and embedding cache `backend/runs/full-100x12.embeddings.json` are force-tracked for production serving.
 
 ## Outreach
 

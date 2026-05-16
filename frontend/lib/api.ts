@@ -5,6 +5,7 @@ import type {
   GraphResponse,
   Run
 } from "./types";
+import { canonicalRunId } from "./runs";
 
 const DEFAULT_API_BASE_URL = "https://societiesdemo-production.up.railway.app";
 
@@ -24,9 +25,12 @@ export function getApiBaseUrl(): string {
   return (process.env.NEXT_PUBLIC_API_BASE_URL ?? DEFAULT_API_BASE_URL).replace(/\/$/, "");
 }
 
-export function getDefaultRunId(): string | null {
+export function getDefaultRunId(): string {
   const value = process.env.NEXT_PUBLIC_DEFAULT_RUN_ID;
-  return value && value.trim() ? value.trim() : null;
+  if (!value || !value.trim() || value.trim() === "full-stage8") {
+    return canonicalRunId();
+  }
+  return value.trim();
 }
 
 export async function getRun(runId: string): Promise<Run> {

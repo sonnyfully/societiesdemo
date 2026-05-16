@@ -78,4 +78,4 @@ From He et al. (2026), among the English-speaking chatbots:
 | 21 | 0.40 | 0.58 |
 | 28 | 0.38 | 0.61 |
 
-You will not get numbers this high — you have 50 agents, not 17,746, and 8 rounds, not 28 days. Expected modularity in your setup: 0.15–0.35. The story is "the effect is in the same direction and statistically significant against null."
+You will not get numbers this high because the canonical setup has 100 agents and 12 rounds, not 17,746 agents and 28 days. The observed canonical modularity is 0.131 against a 95% bootstrap null interval of [0.101, 0.117]. The story is "the effect is in the same direction and statistically significant against null," not "the magnitude matches the paper."

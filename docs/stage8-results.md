@@ -1,5 +1,7 @@
 # Stage 8 results
 
+This was the first full run and is now historical. The canonical result for the dashboard and research note is `full-100x12`; see `docs/full-100x12-results.md`.
+
 Run completed on 2026-05-15.
 
 ## Run identity

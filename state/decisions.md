@@ -22,9 +22,15 @@ Each entry: date, decision, reasoning. Do not deviate without amending here.
 
 ## 2026-05-15 — reduced experiment scale
 
-**Decision:** 50 agents, 8 rounds, balanced as 5 camps × 10 personas each.
+**Decision:** Superseded on 2026-05-16. Use 50 agents, 8 rounds, balanced as 5 camps × 10 personas each.
 
 **Reasoning:** Keeps the replication lightweight enough for the 20-hour build while preserving the balanced latent-camp structure and enough observations for the bootstrap null distribution.
+
+## 2026-05-16 — canonical experiment scale
+
+**Decision:** Use `full-100x12` as the canonical run: 100 agents, 12 rounds, balanced as 5 camps x 20 personas each.
+
+**Reasoning:** The initial 50-agent run reproduced the direction but looked weak relative to the paper. After explicit approval for paid credits with an absolute $5 cap, a larger run gives a cleaner final null comparison while staying under budget. The completed run cost $3.416 and is now the main dashboard/note result. The earlier `full-stage8` run remains historical.
 
 ## 2026-05-15 — prompt caching
 

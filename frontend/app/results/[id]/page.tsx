@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ApiError, getDashboardData } from "../../../lib/api";
 import { formatDate, formatInteger, formatMetric } from "../../../lib/format";
+import { SAVED_RUN_OPTIONS, savedRunOrCanonical } from "../../../lib/runs";
 import type { DashboardData } from "../../../lib/types";
 import { EmbeddingMap } from "../../../components/EmbeddingMap";
 import { MetricTrend } from "../../../components/MetricTrend";
@@ -69,6 +70,7 @@ export default function ResultsPage(): JSX.Element {
           </Link>
           <h1 className="mt-3 text-4xl font-medium tracking-normal text-ink md:text-5xl">Run analysis</h1>
           <p className="mt-4 max-w-3xl text-sm leading-6 text-slate">{data.run.topic}</p>
+          <RunSwitchForm selectedRunId={runId} />
         </div>
         <dl className="grid grid-cols-2 gap-3 text-sm">
           <SummaryItem label="Status" value={data.run.status} />
@@ -156,6 +158,34 @@ function SectionHeading({ title, text }: { title: string; text: string }): JSX.E
     <div className="mb-3">
       <h2 className="text-base font-medium text-ink">{title}</h2>
       <p className="mt-1 text-sm leading-6 text-slate">{text}</p>
+    </div>
+  );
+}
+
+function RunSwitchForm({ selectedRunId }: { selectedRunId: string }): JSX.Element {
+  return (
+    <div className="mt-4 flex max-w-xl flex-col gap-3 sm:flex-row">
+      <select
+        aria-label="Saved run"
+        name="runId"
+        defaultValue={savedRunOrCanonical(selectedRunId)}
+        className="min-h-10 flex-1 rounded border-[0.5px] border-line bg-white px-3 text-sm text-ink"
+        onChange={(event) => {
+          window.location.href = `/results/${encodeURIComponent(event.currentTarget.value)}`;
+        }}
+      >
+        {SAVED_RUN_OPTIONS.map((option) => (
+          <option key={option.id} value={option.id}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+      <Link
+        href={`/simulation?runId=${encodeURIComponent(savedRunOrCanonical(selectedRunId))}`}
+        className="inline-flex min-h-10 items-center rounded border-[0.5px] border-line px-4 text-sm font-medium text-ink hover:border-ink focus-visible:outline-ink"
+      >
+        Replay
+      </Link>
     </div>
   );
 }

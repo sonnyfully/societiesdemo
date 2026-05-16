@@ -8,7 +8,7 @@ Core constraints:
 
 - Seed topic: "Should universities ban AI in coursework?"
 - Model: `claude-haiku-4-5-20251001`
-- Scale: 50 agents, 8 rounds
+- Scale: 100 agents, 12 rounds
 - Backend: Python 3.11, FastAPI, Pydantic, Anthropic SDK, NetworkX, sentence-transformers, scipy, numpy
 - Frontend: Next.js 14 App Router, TypeScript, Tailwind, d3-force, umap-js
 - Storage: JSON files in `backend/runs/`
