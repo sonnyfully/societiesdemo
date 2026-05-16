@@ -227,9 +227,8 @@ def build_pdf() -> None:
                 styles["NoteBody"],
             ),
             Paragraph(
-                "<b>Artifacts.</b> Dashboard: https://homophily-simulation.vercel.app. "
-                "Saved run id: full-stage8. Raw run file: backend/runs/full-stage8.json "
-                "(local, gitignored).",
+                "<b>Artifacts.</b> Dashboard: https://societiesdemo-egqj7tmwe-sonnyfully12-icloudcoms-projects.vercel.app. "
+                "Saved run id: full-stage8. Raw run file: backend/runs/full-stage8.json.",
                 styles["NoteBody"],
             ),
         ]

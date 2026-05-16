@@ -61,8 +61,8 @@ assortativity, content–engagement correlation). The finding reproduces,
 but with a much smaller effect size: modularity 0.133 against a
 degree-preserving bootstrap null of [0.100, 0.130], p = 0.010.
 
-The build: https://homophily-simulation.vercel.app/results/full-stage8
-The 2-page note: https://homophily-simulation.vercel.app/note.pdf
+The build: https://societiesdemo-egqj7tmwe-sonnyfully12-icloudcoms-projects.vercel.app/results/full-stage8
+The 2-page note: https://societiesdemo-egqj7tmwe-sonnyfully12-icloudcoms-projects.vercel.app/note.pdf
 Loom walkthrough: [link]
 
 The reason I'm sending this rather than just sitting with it: I think the

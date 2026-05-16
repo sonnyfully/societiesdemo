@@ -10,7 +10,7 @@ The paper used GPT-3.5 in late 2023. Its discussion section explicitly flags mod
 
 This project re-runs the core mechanism with **Claude Haiku 4.5**, a different lab's small frontier model from May 2026 — two and a half years later, in a scaled-down environment.
 
-**→ [Live dashboard](https://homophily-simulation.vercel.app)**
+**→ [Live dashboard](https://societiesdemo-egqj7tmwe-sonnyfully12-icloudcoms-projects.vercel.app)**
 **→ [Research note (PDF)](./note/note.pdf)**
 
 ---
@@ -71,7 +71,7 @@ This is the bridge from academic curiosity to commercial relevance.
 
 If homophily is robust across model families, then any product built on simulated audiences (market research, message testing, audience reaction simulation) inherits a structural risk: simulated populations will tend to homogenise as the simulation runs. A "diverse 5,000-persona F500 buyer committee" can collapse into agreement within a handful of rounds — not because the personas were poorly specified, but because the underlying LLMs' learned social patterns push toward consensus with like-minded others.
 
-The diagnostic shown on the [live dashboard](https://homophily-simulation.vercel.app) — modularity climbing, content-engagement correlation strengthening over rounds — is precisely the signal a synthetic-audience product would want to surface to its users.
+The diagnostic shown on the [live dashboard](https://societiesdemo-egqj7tmwe-sonnyfully12-icloudcoms-projects.vercel.app) — modularity climbing, content-engagement correlation strengthening over rounds — is precisely the signal a synthetic-audience product would want to surface to its users.
 
 ---
 
@@ -186,11 +186,11 @@ vercel --cwd frontend --prod
 Smoke-test these URLs before sharing:
 
 ```txt
-https://homophily-simulation.vercel.app/
-https://homophily-simulation.vercel.app/simulation?runId=full-stage8
-https://homophily-simulation.vercel.app/results/full-stage8
-https://homophily-simulation.vercel.app/note
-https://homophily-simulation.vercel.app/note.pdf
+https://societiesdemo-egqj7tmwe-sonnyfully12-icloudcoms-projects.vercel.app/
+https://societiesdemo-egqj7tmwe-sonnyfully12-icloudcoms-projects.vercel.app/simulation?runId=full-stage8
+https://societiesdemo-egqj7tmwe-sonnyfully12-icloudcoms-projects.vercel.app/results/full-stage8
+https://societiesdemo-egqj7tmwe-sonnyfully12-icloudcoms-projects.vercel.app/note
+https://societiesdemo-egqj7tmwe-sonnyfully12-icloudcoms-projects.vercel.app/note.pdf
 ```
 
 If the dashboard loads but analysis fails, first check that the Vercel environment variable points at the Railway URL with no trailing slash, then redeploy Vercel so the public env var is rebuilt into the Next.js bundle. A 404 from `/simulation` usually means the frontend was built with the wrong API base URL and is asking Vercel, not Railway, for `/runs/full-stage8`.
