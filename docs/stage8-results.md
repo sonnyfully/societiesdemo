@@ -8,7 +8,7 @@ Run completed on 2026-05-15.
 - Topic: `Should universities ban AI in coursework?`
 - Model: `claude-haiku-4-5-20251001`
 - Scale: 50 agents, 8 rounds
-- Raw output: `backend/runs/full-stage8.json` (gitignored, preserved locally)
+- Raw output: `backend/runs/full-stage8.json` (force-tracked for production serving)
 - Total tracked cost: `$1.21995`
 
 ## Persona gate

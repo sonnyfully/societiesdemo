@@ -111,9 +111,10 @@ For the 20-hour build, the dashboard can read pre-computed runs from disk rather
 
 ## Deployment
 
-- Frontend: `vercel deploy` from `frontend/`. Custom domain if available.
-- Backend: Railway, deploy from GitHub. Set `ANTHROPIC_API_KEY` as env var.
-- Pre-compute 2–3 full runs locally before deploying. Backend only needs to serve saved JSON in production.
+- Frontend: Vercel from `frontend/`, with `NEXT_PUBLIC_DEFAULT_RUN_ID=full-stage8` and `NEXT_PUBLIC_API_BASE_URL=https://societiesdemo-production.up.railway.app`.
+- Backend: Railway from the repo root. `railway.json` defines the Railpack build/start commands, root `requirements.txt` enables Python dependency detection, and `backend/preload_model.py` preloads MiniLM at build time.
+- `ANTHROPIC_API_KEY` is not required for the presentation deployment because production serves the saved `full-stage8` JSON. Set it only if deliberately enabling live paid runs.
+- The completed run `backend/runs/full-stage8.json` is force-tracked for production serving.
 
 ## Outreach
 

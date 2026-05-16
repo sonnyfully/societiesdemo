@@ -58,10 +58,11 @@ section flagged: whether the homophily result holds across model families.
 So I built a scaled-down replication. 50 Claude Haiku 4.5 agents in a
 topic simulation environment, 8 rounds, same metrics as your paper (modularity,
 assortativity, content–engagement correlation). The finding reproduces,
-with [headline result].
+but with a much smaller effect size: modularity 0.133 against a
+degree-preserving bootstrap null of [0.100, 0.130], p = 0.010.
 
-The build: [link]
-The 2-page note: [link]
+The build: https://homophily-simulation.vercel.app/results/full-stage8
+The 2-page note: https://homophily-simulation.vercel.app/note.pdf
 Loom walkthrough: [link]
 
 The reason I'm sending this rather than just sitting with it: I think the
