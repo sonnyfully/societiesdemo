@@ -42,3 +42,6 @@ note/*.toc
 # Local deploy/cache state
 .vercel/
 .railway/
+
+# Private prep notes
+private-notes/
