@@ -128,6 +128,12 @@ class AgentEmbedding(StrictBaseModel):
     embedding: list[float]
 
 
+class EmbeddingCache(StrictBaseModel):
+    run_id: str
+    model: str
+    embeddings: list[AgentEmbedding]
+
+
 class AnalysisResponse(StrictBaseModel):
     run_id: str
     status: Literal["pending", "running", "complete", "failed"]

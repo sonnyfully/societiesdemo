@@ -25,6 +25,8 @@ coverage/
 # Local simulation outputs
 backend/runs/*.json
 !backend/runs/.gitkeep
+!backend/runs/full-stage8.json
+!backend/runs/full-stage8.embeddings.json
 
 # LaTeX build outputs
 note/*.aux

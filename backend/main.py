@@ -13,6 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 try:
     from .agents import DEFAULT_TOPIC
     from .metrics import (
+        DEFAULT_EMBEDDING_MODEL,
         agent_embeddings_for_posts,
         build_weighted_engagement_graph,
         community_id_by_agent,
@@ -26,16 +27,19 @@ try:
         GraphEdge,
         GraphNode,
         GraphResponse,
+        Post,
         RoundMetricPoint,
         Run,
         RunCreateRequest,
         RunCreateResponse,
         RoundSnapshot,
+        EmbeddingCache,
     )
     from .simulation import DEFAULT_N_AGENTS, DEFAULT_N_ROUNDS, DEFAULT_RUNS_DIR, run_simulation
 except ImportError:  # pragma: no cover - supports running from backend/ directly.
     from agents import DEFAULT_TOPIC
     from metrics import (
+        DEFAULT_EMBEDDING_MODEL,
         agent_embeddings_for_posts,
         build_weighted_engagement_graph,
         community_id_by_agent,
@@ -49,11 +53,13 @@ except ImportError:  # pragma: no cover - supports running from backend/ directl
         GraphEdge,
         GraphNode,
         GraphResponse,
+        Post,
         RoundMetricPoint,
         Run,
         RunCreateRequest,
         RunCreateResponse,
         RoundSnapshot,
+        EmbeddingCache,
     )
     from simulation import DEFAULT_N_AGENTS, DEFAULT_N_ROUNDS, DEFAULT_RUNS_DIR, run_simulation
 
@@ -131,15 +137,20 @@ async def get_analysis(run_id: str) -> AnalysisResponse:
     posts, _ = cumulative_round_data(run.rounds)
     embeddings: list[AgentEmbedding] = []
     embeddings_available = False
-    try:
-        embedding_map = agent_embeddings_for_posts(run.personas, posts)
-        embeddings = [
-            AgentEmbedding(agent_id=agent_id, embedding=embedding)
-            for agent_id, embedding in embedding_map.items()
-        ]
+    cached_embeddings = _load_embedding_cache(run, posts)
+    if cached_embeddings is not None:
+        embeddings = cached_embeddings
         embeddings_available = bool(embeddings)
-    except Exception as exc:  # noqa: BLE001 - endpoint should still return metrics.
-        logger.warning("Analysis embeddings unavailable for run %s: %s", run.id, exc)
+    else:
+        try:
+            embedding_map = agent_embeddings_for_posts(run.personas, posts)
+            embeddings = [
+                AgentEmbedding(agent_id=agent_id, embedding=embedding)
+                for agent_id, embedding in embedding_map.items()
+            ]
+            embeddings_available = bool(embeddings)
+        except Exception as exc:  # noqa: BLE001 - endpoint should still return metrics.
+            logger.warning("Analysis embeddings unavailable for run %s: %s", run.id, exc)
 
     return AnalysisResponse(
         run_id=run.id,
@@ -178,6 +189,35 @@ def _run_path(run_id: str) -> Path:
     if Path(run_id).name != run_id or run_id.endswith(".json"):
         raise HTTPException(status_code=400, detail={"code": "invalid_run_id"})
     return DEFAULT_RUNS_DIR / f"{run_id}.json"
+
+
+def _embedding_cache_path(run_id: str) -> Path:
+    if Path(run_id).name != run_id or run_id.endswith(".json"):
+        raise HTTPException(status_code=400, detail={"code": "invalid_run_id"})
+    return DEFAULT_RUNS_DIR / f"{run_id}.embeddings.json"
+
+
+def _load_embedding_cache(run: Run, posts: list[Post]) -> list[AgentEmbedding] | None:
+    path = _embedding_cache_path(run.id)
+    if not path.exists():
+        return None
+
+    try:
+        cache = EmbeddingCache.model_validate_json(path.read_text(encoding="utf-8"))
+    except Exception as exc:  # noqa: BLE001 - invalid cache should not break analysis.
+        logger.warning("Embedding cache invalid for run %s: %s", run.id, exc)
+        return None
+
+    posted_agent_ids = {post.agent_id for post in posts}
+    expected_agent_ids = {persona.id for persona in run.personas if persona.id in posted_agent_ids}
+    cached_agent_ids = {embedding.agent_id for embedding in cache.embeddings}
+    if cache.run_id != run.id or cache.model != DEFAULT_EMBEDDING_MODEL:
+        logger.warning("Embedding cache metadata mismatch for run %s", run.id)
+        return None
+    if cached_agent_ids != expected_agent_ids:
+        logger.warning("Embedding cache agent ids mismatch for run %s", run.id)
+        return None
+    return cache.embeddings
 
 
 def _load_run_or_404(run_id: str) -> Run:
