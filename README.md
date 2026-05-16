@@ -175,7 +175,7 @@ Set production environment variables before deploying:
 
 ```txt
 NEXT_PUBLIC_DEFAULT_RUN_ID=full-stage8
-NEXT_PUBLIC_API_BASE_URL=https://YOUR-RAILWAY-DOMAIN
+NEXT_PUBLIC_API_BASE_URL=https://societiesdemo-production.up.railway.app
 ```
 
 Deploy production from the dashboard or with:
@@ -193,7 +193,7 @@ https://YOUR-VERCEL-DOMAIN/note
 https://YOUR-VERCEL-DOMAIN/note.pdf
 ```
 
-If the dashboard loads but analysis fails, first check that the Vercel environment variable points at the Railway URL with no trailing slash, then redeploy Vercel so the public env var is rebuilt into the Next.js bundle.
+If the dashboard loads but analysis fails, first check that the Vercel environment variable points at the Railway URL with no trailing slash, then redeploy Vercel so the public env var is rebuilt into the Next.js bundle. A 404 from `/simulation` usually means the frontend was built with the wrong API base URL and is asking Vercel, not Railway, for `/runs/full-stage8`.
 
 ---
 
