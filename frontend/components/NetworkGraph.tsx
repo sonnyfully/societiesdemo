@@ -1,7 +1,7 @@
 "use client";
 
 import { forceCenter, forceCollide, forceLink, forceManyBody, forceSimulation, type SimulationLinkDatum, type SimulationNodeDatum } from "d3-force";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState, type FocusEvent, type MouseEvent } from "react";
 import { formatInteger } from "../lib/format";
 import type { GraphEdge, GraphNode } from "../lib/types";
 
@@ -9,6 +9,9 @@ const COMMUNITY_COLORS = ["#9f2d55", "#3f7a58", "#2e7f8f", "#a46a22", "#4f5f6a",
 const WIDTH = 860;
 const HEIGHT = 620;
 const COMPACT_HEIGHT = 380;
+const TOOLTIP_WIDTH = 190;
+const TOOLTIP_HEIGHT = 44;
+const TOOLTIP_GAP = 12;
 
 interface NetworkGraphProps {
   nodes: GraphNode[];
@@ -24,13 +27,19 @@ interface SimLink extends SimulationLinkDatum<SimNode> {
   weight: number;
 }
 
+interface HoverState {
+  node: SimNode;
+  x: number;
+  y: number;
+}
+
 export function NetworkGraph({ nodes, edges, compact = false }: NetworkGraphProps): JSX.Element {
-  const [hoveredNode, setHoveredNode] = useState<SimNode | null>(null);
+  const graphRef = useRef<HTMLDivElement | null>(null);
+  const [hoveredNode, setHoveredNode] = useState<HoverState | null>(null);
   const height = compact ? COMPACT_HEIGHT : HEIGHT;
   const nodeRadius = compact ? 8 : 12;
   const layout = useMemo(() => computeLayout(nodes, edges, height, nodeRadius), [nodes, edges, height, nodeRadius]);
   const communities = useMemo(() => summarizeCommunities(nodes), [nodes]);
-  const tooltip = hoveredNode ? tooltipPosition(hoveredNode, WIDTH, height) : null;
 
   if (!nodes.length) {
     return (
@@ -48,73 +57,71 @@ export function NetworkGraph({ nodes, edges, compact = false }: NetworkGraphProp
           {formatInteger(nodes.length)} agents · {formatInteger(edges.length)} edges
         </p>
       </div>
-      <svg
-        className="h-full min-h-72 w-full p-3"
-        viewBox={`0 0 ${WIDTH} ${height}`}
-        role="img"
-        aria-label="Weighted engagement network. Nodes are agents, edges are likes or follows, and colour plus hover labels indicate detected communities."
-      >
-        <rect width={WIDTH} height={height} fill="#fbfbf8" />
-        {layout.links.map((link, index) => {
-          const source = endpointNode(link.source);
-          const target = endpointNode(link.target);
-          if (!source || !target) {
-            return null;
-          }
-          return (
-            <line
-              key={`${source.id}-${target.id}-${index}`}
-              x1={source.x}
-              y1={source.y}
-              x2={target.x}
-              y2={target.y}
-              stroke={linkColor(source.community, target.community)}
-              strokeOpacity={source.community === target.community ? "0.42" : "0.22"}
-              strokeWidth={Math.max(0.75, Math.min(compact ? 4 : 7, link.weight * 1.15))}
-            />
-          );
-        })}
-        {layout.nodes.map((node) => (
-          <g
-            key={node.id}
-            onMouseEnter={() => setHoveredNode(node)}
-            onMouseLeave={() => setHoveredNode(null)}
-            tabIndex={0}
-            role="listitem"
-            aria-label={`${node.name}, ${node.camp}, community ${node.community}`}
-            className="outline-none"
+      <div ref={graphRef} className="relative bg-[#fbfbf8] p-3">
+        <svg
+          className="block h-auto min-h-72 w-full"
+          width={WIDTH}
+          height={height}
+          viewBox={`0 0 ${WIDTH} ${height}`}
+          role="img"
+          aria-label="Weighted engagement network. Nodes are agents, edges are likes or follows, and colour plus hover labels indicate detected communities."
+        >
+          <rect width={WIDTH} height={height} fill="#fbfbf8" />
+          {layout.links.map((link, index) => {
+            const source = endpointNode(link.source);
+            const target = endpointNode(link.target);
+            if (!source || !target) {
+              return null;
+            }
+            return (
+              <line
+                key={`${source.id}-${target.id}-${index}`}
+                x1={source.x}
+                y1={source.y}
+                x2={target.x}
+                y2={target.y}
+                stroke={linkColor(source.community, target.community)}
+                strokeOpacity={source.community === target.community ? "0.42" : "0.22"}
+                strokeWidth={Math.max(0.75, Math.min(compact ? 4 : 7, link.weight * 1.15))}
+              />
+            );
+          })}
+          {layout.nodes.map((node) => (
+            <g
+              key={node.id}
+              onFocus={(event) => setHoveredNode(focusedTooltip(node, event, WIDTH, height, graphRef.current))}
+              onBlur={() => setHoveredNode(null)}
+              onMouseEnter={(event) => setHoveredNode(pointerTooltip(node, event, graphRef.current))}
+              onMouseMove={(event) => setHoveredNode(pointerTooltip(node, event, graphRef.current))}
+              onMouseLeave={() => setHoveredNode(null)}
+              tabIndex={0}
+              role="listitem"
+              aria-label={`${node.name}, ${node.camp}, community ${node.community}`}
+              className="outline-none"
+            >
+              <circle
+                cx={node.x}
+                cy={node.y}
+                r={nodeRadius}
+                fill={communityColor(node.community)}
+                stroke="#141414"
+                strokeWidth={hoveredNode?.node.id === node.id ? 2.25 : 0.8}
+              />
+            </g>
+          ))}
+        </svg>
+        {hoveredNode ? (
+          <div
+            className="pointer-events-none absolute z-30 w-[190px] rounded border-[0.5px] border-line bg-white px-2.5 py-1.5 text-left"
+            style={{ left: hoveredNode.x, top: hoveredNode.y }}
           >
-            <circle
-              cx={node.x}
-              cy={node.y}
-              r={nodeRadius}
-              fill={communityColor(node.community)}
-              stroke="#141414"
-              strokeWidth={hoveredNode?.id === node.id ? 2.25 : 0.8}
-            />
-          </g>
-        ))}
-        {hoveredNode && tooltip ? (
-          <g className="pointer-events-none" aria-hidden="true">
-            <rect
-              x={tooltip.x}
-              y={tooltip.y}
-              width="190"
-              height="44"
-              rx="4"
-              fill="#ffffff"
-              stroke="#d8d8d2"
-              strokeWidth="0.5"
-            />
-            <text x={tooltip.x + 10} y={tooltip.y + 18} fontSize="12" fill="#141414">
-              {hoveredNode.name}
-            </text>
-            <text x={tooltip.x + 10} y={tooltip.y + 34} fontSize="11" fill="#4f5f6a">
-              Community {hoveredNode.community} · {hoveredNode.camp.slice(0, 24)}
-            </text>
-          </g>
+            <p className="truncate text-xs text-ink">{hoveredNode.node.name}</p>
+            <p className="truncate text-[11px] leading-4 text-slate">
+              Community {hoveredNode.node.community} · {hoveredNode.node.camp}
+            </p>
+          </div>
         ) : null}
-      </svg>
+      </div>
       {!compact ? (
         <figcaption className="flex flex-wrap gap-2 border-t-[0.5px] border-line px-4 py-3 text-xs text-slate">
           {communities.map((community) => (
@@ -190,10 +197,50 @@ function summarizeCommunities(nodes: GraphNode[]): Array<{ id: number; count: nu
   return Array.from(counts, ([id, count]) => ({ id, count })).sort((a, b) => a.id - b.id);
 }
 
-function tooltipPosition(node: SimNode, width: number, height: number): { x: number; y: number } {
-  const x = clamp((node.x ?? 0) + 14, 8, width - 198);
-  const y = clamp((node.y ?? 0) - 28, 8, height - 52);
-  return { x, y };
+function pointerTooltip(node: SimNode, event: MouseEvent<SVGGElement>, container: HTMLDivElement | null): HoverState {
+  if (!container) {
+    return { node, x: 0, y: 0 };
+  }
+  const rect = container.getBoundingClientRect();
+  return {
+    node,
+    ...clampedTooltipPosition(event.clientX - rect.left + TOOLTIP_GAP, event.clientY - rect.top - TOOLTIP_HEIGHT / 2, rect.width, rect.height)
+  };
+}
+
+function focusedTooltip(
+  node: SimNode,
+  event: FocusEvent<SVGGElement>,
+  width: number,
+  height: number,
+  container: HTMLDivElement | null
+): HoverState {
+  if (!container) {
+    return { node, x: 0, y: 0 };
+  }
+  const containerRect = container.getBoundingClientRect();
+  const svgRect = event.currentTarget.ownerSVGElement?.getBoundingClientRect();
+  const svgLeft = svgRect ? svgRect.left - containerRect.left : 0;
+  const svgTop = svgRect ? svgRect.top - containerRect.top : 0;
+  const svgWidth = svgRect?.width ?? containerRect.width;
+  const svgHeight = svgRect?.height ?? containerRect.height;
+
+  return {
+    node,
+    ...clampedTooltipPosition(
+      svgLeft + (((node.x ?? 0) / width) * svgWidth) + TOOLTIP_GAP,
+      svgTop + (((node.y ?? 0) / height) * svgHeight) - TOOLTIP_HEIGHT / 2,
+      containerRect.width,
+      containerRect.height
+    )
+  };
+}
+
+function clampedTooltipPosition(x: number, y: number, width: number, height: number): { x: number; y: number } {
+  return {
+    x: clamp(x, 8, Math.max(8, width - TOOLTIP_WIDTH - 8)),
+    y: clamp(y, 8, Math.max(8, height - TOOLTIP_HEIGHT - 8))
+  };
 }
 
 function compactPadding(nodeRadius: number): number {

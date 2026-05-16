@@ -1,13 +1,16 @@
 "use client";
 
 import { UMAP } from "umap-js";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type FocusEvent, type MouseEvent } from "react";
 import { formatInteger } from "../lib/format";
 import type { AgentEmbedding, Persona } from "../lib/types";
 
 const COMMUNITY_COLORS = ["#9f2d55", "#3f7a58", "#2e7f8f", "#a46a22", "#4f5f6a", "#7a4f8f"];
 const WIDTH = 720;
 const HEIGHT = 460;
+const TOOLTIP_WIDTH = 190;
+const TOOLTIP_HEIGHT = 44;
+const TOOLTIP_GAP = 12;
 
 interface EmbeddingMapProps {
   embeddings: AgentEmbedding[];
@@ -25,13 +28,20 @@ interface ProjectedPoint {
   camp: string;
 }
 
+interface HoverState {
+  point: ProjectedPoint;
+  x: number;
+  y: number;
+}
+
 export function EmbeddingMap({
   embeddings,
   personas,
   communities,
   available
 }: EmbeddingMapProps): JSX.Element {
-  const [hovered, setHovered] = useState<ProjectedPoint | null>(null);
+  const mapRef = useRef<HTMLDivElement | null>(null);
+  const [hovered, setHovered] = useState<HoverState | null>(null);
   const [points, setPoints] = useState<ProjectedPoint[]>([]);
 
   useEffect(() => {
@@ -71,19 +81,23 @@ export function EmbeddingMap({
         <p className="text-sm font-medium text-ink">Semantic projection</p>
         <p className="text-xs tabular-nums text-slate">{formatInteger(points.length)} embedded agents</p>
       </div>
-      <svg
-        className="h-full min-h-72 w-full p-3"
-        viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-        role="img"
-        aria-label="UMAP projection of agent post embeddings. Points are coloured by detected community and labelled on hover."
-      >
-        <rect width={WIDTH} height={HEIGHT} fill="#fbfbf8" />
-        {points.map((point) => {
-          const tooltip = tooltipPosition(point);
-          return (
+      <div ref={mapRef} className="relative bg-[#fbfbf8] p-3">
+        <svg
+          className="block h-auto min-h-72 w-full"
+          width={WIDTH}
+          height={HEIGHT}
+          viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
+          role="img"
+          aria-label="UMAP projection of agent post embeddings. Points are coloured by detected community and labelled on hover."
+        >
+          <rect width={WIDTH} height={HEIGHT} fill="#fbfbf8" />
+          {points.map((point) => (
             <g
               key={point.agentId}
-              onMouseEnter={() => setHovered(point)}
+              onFocus={(event) => setHovered(focusedTooltip(point, event, mapRef.current))}
+              onBlur={() => setHovered(null)}
+              onMouseEnter={(event) => setHovered(pointerTooltip(point, event, mapRef.current))}
+              onMouseMove={(event) => setHovered(pointerTooltip(point, event, mapRef.current))}
               onMouseLeave={() => setHovered(null)}
               tabIndex={0}
               role="listitem"
@@ -93,26 +107,26 @@ export function EmbeddingMap({
               <circle
                 cx={point.x}
                 cy={point.y}
-                r={hovered?.agentId === point.agentId ? 8 : 6}
+                r={hovered?.point.agentId === point.agentId ? 8 : 6}
                 fill={communityColor(point.community)}
                 stroke="#141414"
                 strokeWidth="0.75"
               />
-              {hovered?.agentId === point.agentId ? (
-                <g>
-                  <rect x={tooltip.x} y={tooltip.y} width="190" height="44" rx="4" fill="#ffffff" stroke="#d8d8d2" strokeWidth="0.5" />
-                  <text x={tooltip.x + 10} y={tooltip.y + 18} fontSize="12" fill="#141414">
-                    {point.label}
-                  </text>
-                  <text x={tooltip.x + 10} y={tooltip.y + 34} fontSize="11" fill="#4f5f6a">
-                    Community {point.community} · {point.camp.slice(0, 24)}
-                  </text>
-                </g>
-              ) : null}
             </g>
-          );
-        })}
-      </svg>
+          ))}
+        </svg>
+        {hovered ? (
+          <div
+            className="pointer-events-none absolute z-30 w-[190px] rounded border-[0.5px] border-line bg-white px-2.5 py-1.5 text-left"
+            style={{ left: hovered.x, top: hovered.y }}
+          >
+            <p className="truncate text-xs text-ink">{hovered.point.label}</p>
+            <p className="truncate text-[11px] leading-4 text-slate">
+              Community {hovered.point.community} · {hovered.point.camp}
+            </p>
+          </div>
+        ) : null}
+      </div>
       <figcaption className="flex flex-wrap gap-2 border-t-[0.5px] border-line px-4 py-3 text-xs text-slate">
         {communitySummary.map((community) => (
           <span key={community.id} className="inline-flex items-center gap-2 rounded-full border-[0.5px] border-line bg-white px-2 py-1">
@@ -197,10 +211,43 @@ function summarizeCommunities(points: ProjectedPoint[]): Array<{ id: number; cou
   return Array.from(counts, ([id, count]) => ({ id, count })).sort((a, b) => a.id - b.id);
 }
 
-function tooltipPosition(point: ProjectedPoint): { x: number; y: number } {
+function pointerTooltip(point: ProjectedPoint, event: MouseEvent<SVGGElement>, container: HTMLDivElement | null): HoverState {
+  if (!container) {
+    return { point, x: 0, y: 0 };
+  }
+  const rect = container.getBoundingClientRect();
   return {
-    x: clamp(point.x + 12, 8, WIDTH - 198),
-    y: clamp(point.y - 28, 8, HEIGHT - 52)
+    point,
+    ...clampedTooltipPosition(event.clientX - rect.left + TOOLTIP_GAP, event.clientY - rect.top - TOOLTIP_HEIGHT / 2, rect.width, rect.height)
+  };
+}
+
+function focusedTooltip(point: ProjectedPoint, event: FocusEvent<SVGGElement>, container: HTMLDivElement | null): HoverState {
+  if (!container) {
+    return { point, x: 0, y: 0 };
+  }
+  const containerRect = container.getBoundingClientRect();
+  const svgRect = event.currentTarget.ownerSVGElement?.getBoundingClientRect();
+  const svgLeft = svgRect ? svgRect.left - containerRect.left : 0;
+  const svgTop = svgRect ? svgRect.top - containerRect.top : 0;
+  const svgWidth = svgRect?.width ?? containerRect.width;
+  const svgHeight = svgRect?.height ?? containerRect.height;
+
+  return {
+    point,
+    ...clampedTooltipPosition(
+      svgLeft + ((point.x / WIDTH) * svgWidth) + TOOLTIP_GAP,
+      svgTop + ((point.y / HEIGHT) * svgHeight) - TOOLTIP_HEIGHT / 2,
+      containerRect.width,
+      containerRect.height
+    )
+  };
+}
+
+function clampedTooltipPosition(x: number, y: number, width: number, height: number): { x: number; y: number } {
+  return {
+    x: clamp(x, 8, Math.max(8, width - TOOLTIP_WIDTH - 8)),
+    y: clamp(y, 8, Math.max(8, height - TOOLTIP_HEIGHT - 8))
   };
 }
 
