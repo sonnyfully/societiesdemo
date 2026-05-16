@@ -30,6 +30,7 @@ export function NetworkGraph({ nodes, edges, compact = false }: NetworkGraphProp
   const nodeRadius = compact ? 8 : 12;
   const layout = useMemo(() => computeLayout(nodes, edges, height, nodeRadius), [nodes, edges, height, nodeRadius]);
   const communities = useMemo(() => summarizeCommunities(nodes), [nodes]);
+  const tooltip = hoveredNode ? tooltipPosition(hoveredNode, WIDTH, height) : null;
 
   if (!nodes.length) {
     return (
@@ -91,28 +92,28 @@ export function NetworkGraph({ nodes, edges, compact = false }: NetworkGraphProp
               stroke="#141414"
               strokeWidth={hoveredNode?.id === node.id ? 2.25 : 0.8}
             />
-            {hoveredNode?.id === node.id ? (
-              <g>
-                <rect
-                  x={tooltipPosition(node, WIDTH, height).x}
-                  y={tooltipPosition(node, WIDTH, height).y}
-                  width="190"
-                  height="44"
-                  rx="4"
-                  fill="#ffffff"
-                  stroke="#d8d8d2"
-                  strokeWidth="0.5"
-                />
-                <text x={tooltipPosition(node, WIDTH, height).x + 10} y={tooltipPosition(node, WIDTH, height).y + 18} fontSize="12" fill="#141414">
-                  {node.name}
-                </text>
-                <text x={tooltipPosition(node, WIDTH, height).x + 10} y={tooltipPosition(node, WIDTH, height).y + 34} fontSize="11" fill="#4f5f6a">
-                  Community {node.community} · {node.camp.slice(0, 24)}
-                </text>
-              </g>
-            ) : null}
           </g>
         ))}
+        {hoveredNode && tooltip ? (
+          <g className="pointer-events-none" aria-hidden="true">
+            <rect
+              x={tooltip.x}
+              y={tooltip.y}
+              width="190"
+              height="44"
+              rx="4"
+              fill="#ffffff"
+              stroke="#d8d8d2"
+              strokeWidth="0.5"
+            />
+            <text x={tooltip.x + 10} y={tooltip.y + 18} fontSize="12" fill="#141414">
+              {hoveredNode.name}
+            </text>
+            <text x={tooltip.x + 10} y={tooltip.y + 34} fontSize="11" fill="#4f5f6a">
+              Community {hoveredNode.community} · {hoveredNode.camp.slice(0, 24)}
+            </text>
+          </g>
+        ) : null}
       </svg>
       {!compact ? (
         <figcaption className="flex flex-wrap gap-2 border-t-[0.5px] border-line px-4 py-3 text-xs text-slate">
