@@ -3,10 +3,11 @@ import type { RoundMetrics } from "../lib/types";
 
 interface MetricsPanelProps {
   metrics: RoundMetrics | null;
+  subtitle?: string;
   title?: string;
 }
 
-export function MetricsPanel({ metrics, title = "Metrics" }: MetricsPanelProps): JSX.Element {
+export function MetricsPanel({ metrics, subtitle = "Cumulative through selected round", title = "Metrics" }: MetricsPanelProps): JSX.Element {
   if (!metrics) {
     return (
       <section className="panel p-5">
@@ -33,7 +34,7 @@ export function MetricsPanel({ metrics, title = "Metrics" }: MetricsPanelProps):
     <section className="panel p-5">
       <div className="flex flex-wrap items-baseline justify-between gap-3">
         <h2 className="text-base font-medium text-ink">{title}</h2>
-        <p className="text-xs text-slate">Cumulative through selected round</p>
+        <p className="text-xs text-slate">{subtitle}</p>
       </div>
       <dl className="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {items.map(([label, value], index) => (

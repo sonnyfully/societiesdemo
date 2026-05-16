@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ApiError, getDashboardData } from "../../../lib/api";
-import { formatDate, formatInteger, formatMetric } from "../../../lib/format";
+import { formatDate, formatInteger, formatMetric, formatPValue } from "../../../lib/format";
 import { SAVED_RUN_OPTIONS, savedRunOrCanonical } from "../../../lib/runs";
-import type { DashboardData } from "../../../lib/types";
+import type { DashboardData, RoundMetricPoint } from "../../../lib/types";
 import { EmbeddingMap } from "../../../components/EmbeddingMap";
 import { MetricTrend } from "../../../components/MetricTrend";
 import { MetricsPanel } from "../../../components/MetricsPanel";
@@ -60,6 +60,9 @@ export default function ResultsPage(): JSX.Element {
   }
 
   const finalMetrics = data.analysis.final_metrics;
+  const finalRound = data.run.rounds.at(-1)?.round ?? data.run.n_rounds;
+  const firstMetricPoint = data.analysis.per_round_metrics[0] ?? null;
+  const finalMetricPoint = data.analysis.per_round_metrics.at(-1) ?? null;
 
   return (
     <main className="page-shell">
@@ -85,20 +88,31 @@ export default function ResultsPage(): JSX.Element {
         <StatusMessage title="Simulation failed" text="This run stopped before completion. The dashboard is rendering the saved partial state." />
       ) : null}
 
-      <MetricsPanel metrics={finalMetrics} title="Final cumulative metrics" />
+      <MetricsPanel
+        metrics={finalMetrics}
+        title={`Final round ${finalRound} cumulative metrics`}
+        subtitle={`${formatInteger(data.run.personas.length)} agents · ${formatInteger(data.run.rounds.length)} rounds · canonical 100/12 run`}
+      />
 
       <section className="panel grid gap-0 overflow-hidden lg:grid-cols-[0.78fr_1.22fr]">
         <div className="border-b-[0.5px] border-line p-5 lg:border-b-0 lg:border-r-[0.5px]">
           <p className="eyebrow">Interpretation</p>
           <h2 className="mt-3 text-2xl font-medium leading-snug text-ink">The signal is present, but quieter than Chirper.</h2>
           <p className="mt-4 text-sm leading-6 text-slate">
-            The Claude run clears the bootstrap null on modularity while producing weaker community alignment than He et al. reported. For synthetic-audience products, that still matters: repeated interaction can concentrate attention even when the starting population is deliberately balanced.
+            The headline modularity is the cumulative graph at round {finalRound}, not the peak early-round value. Early rounds are sparse and can show higher modularity; the final result uses all 100 agents across all 12 rounds and still clears the bootstrap null.
           </p>
         </div>
         <div className="grid divide-y-[0.5px] divide-line sm:grid-cols-3 sm:divide-x-[0.5px] sm:divide-y-0">
           <EvidenceStat label="Null interval" value={finalMetrics ? `${formatMetric(finalMetrics.modularity_ci_low)}-${formatMetric(finalMetrics.modularity_ci_high)}` : "Pending"} />
           <EvidenceStat label="Communities" value={finalMetrics ? formatInteger(finalMetrics.n_communities) : "Pending"} />
-          <EvidenceStat label="Classification" value="Replicates" />
+          <EvidenceStat
+            label="Modularity path"
+            value={
+              firstMetricPoint && finalMetricPoint
+                ? `${formatMetric(firstMetricPoint.metrics.modularity)} -> ${formatMetric(finalMetricPoint.metrics.modularity)}`
+                : "Pending"
+            }
+          />
         </div>
       </section>
 
@@ -123,6 +137,8 @@ export default function ResultsPage(): JSX.Element {
         <MetricTrend points={data.analysis.per_round_metrics} metric="assortativity" label="Assortativity" />
         <MetricTrend points={data.analysis.per_round_metrics} metric="content_engagement_correlation" label="Content correlation" />
       </section>
+
+      <RoundMetricsTable points={data.analysis.per_round_metrics} finalRound={finalRound} />
 
       <section className="panel p-5">
         <h2 className="text-base font-medium text-ink">Reference comparison</h2>
@@ -157,6 +173,49 @@ export default function ResultsPage(): JSX.Element {
         </Link>
       </div>
     </main>
+  );
+}
+
+function RoundMetricsTable({ finalRound, points }: { finalRound: number; points: RoundMetricPoint[] }): JSX.Element {
+  return (
+    <section className="panel p-5">
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <h2 className="text-base font-medium text-ink">Round-by-round modularity</h2>
+        <p className="text-xs text-slate">Final result uses round {finalRound}</p>
+      </div>
+      <div className="mt-4 overflow-x-auto">
+        <table className="w-full min-w-[42rem] border-collapse text-left text-sm">
+          <thead className="border-b-[0.5px] border-line text-slate">
+            <tr>
+              <th className="py-3 pr-4 font-medium">Round</th>
+              <th className="py-3 pr-4 font-medium">Modularity</th>
+              <th className="py-3 pr-4 font-medium">Bootstrap null</th>
+              <th className="py-3 pr-4 font-medium">p-value</th>
+              <th className="py-3 pr-4 font-medium">Assortativity</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y-[0.5px] divide-line">
+            {points.map((point) => (
+              <tr key={point.round} className={point.round === finalRound ? "bg-[#fbfbf8]" : ""}>
+                <th className="py-3 pr-4 font-medium text-ink">
+                  Round {point.round}
+                  {point.round === finalRound ? <span className="ml-2 text-xs font-normal text-slate">final</span> : null}
+                </th>
+                <td className="py-3 pr-4 tabular-nums text-ink">{formatMetric(point.metrics.modularity)}</td>
+                <td className="py-3 pr-4 tabular-nums text-slate">
+                  {formatMetric(point.metrics.modularity_ci_low)} to {formatMetric(point.metrics.modularity_ci_high)}
+                </td>
+                <td className="py-3 pr-4 tabular-nums text-slate">{formatPValue(point.metrics.modularity_p)}</td>
+                <td className="py-3 pr-4 tabular-nums text-slate">{formatMetric(point.metrics.assortativity)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-4 text-sm leading-6 text-slate">
+        The modularity series declines as the cumulative engagement graph fills in. The canonical result is the final saved snapshot after all 12 rounds.
+      </p>
+    </section>
   );
 }
 
