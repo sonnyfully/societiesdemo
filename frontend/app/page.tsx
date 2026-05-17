@@ -14,18 +14,18 @@ export default function Page(): JSX.Element {
           <Link href="/" className="font-medium focus-visible:outline-ink">
             Homophily Simulation
           </Link>
-          <div className="flex flex-wrap gap-5 text-slate">
+          <div className="flex flex-wrap gap-x-4 gap-y-2 text-slate">
             <Link href={simulationHref} className="hover:text-ink focus-visible:outline-ink">
               Simulation
             </Link>
             <Link href={resultsHref} className="hover:text-ink focus-visible:outline-ink">
               Results
             </Link>
-            <Link href="/note" className="hover:text-ink focus-visible:outline-ink">
-              Research note
-            </Link>
             <Link href="/walkthrough" className="hover:text-ink focus-visible:outline-ink">
               Walkthrough
+            </Link>
+            <Link href="/note" className="hover:text-ink focus-visible:outline-ink">
+              Research note
             </Link>
           </div>
         </nav>
