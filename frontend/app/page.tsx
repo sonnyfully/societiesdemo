@@ -24,6 +24,9 @@ export default function Page(): JSX.Element {
             <Link href="/note" className="hover:text-ink focus-visible:outline-ink">
               Research note
             </Link>
+            <Link href="/walkthrough" className="hover:text-ink focus-visible:outline-ink">
+              Walkthrough
+            </Link>
           </div>
         </nav>
 

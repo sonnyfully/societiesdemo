@@ -31,6 +31,7 @@ Stage 9 deploy polish is effectively complete locally, with one deployment refre
 - Research note written in `note/note.tex`
 - Two-page research note PDF generated at `note/note.pdf` and served by the frontend at `/note.pdf`
 - Web research note page added at `/note`
+- Walkthrough page added at `/walkthrough`; MP4 placed at `frontend/public/walkthrough.mp4`. An Open Graph screenshot image is still needed in `frontend/public/` for richer link previews.
 - Home page now links directly to the default run replay when `NEXT_PUBLIC_DEFAULT_RUN_ID=full-100x12`
 - Railway backend deployed at `https://societiesdemo-production.up.railway.app`
 - Vercel frontend should be configured to use `NEXT_PUBLIC_DEFAULT_RUN_ID=full-100x12` and `NEXT_PUBLIC_API_BASE_URL=https://societiesdemo-production.up.railway.app`
@@ -42,14 +43,14 @@ Stage 9 deploy polish is effectively complete locally, with one deployment refre
 ## In progress
 
 - Redeploy refresh for the canonical `full-100x12` artifacts.
-- Loom walkthrough planning.
+- Open Graph screenshot capture for richer walkthrough link previews.
 
 ## Next
 
 1. Force-add `backend/runs/full-100x12.json` and `backend/runs/full-100x12.embeddings.json`, commit the canonical artifacts, and redeploy
 2. Smoke-test the public Vercel URLs end-to-end after the latest deploy settles
-3. Record the 2-minute Loom walkthrough
-4. Finalise outreach email with dashboard, note, and Loom links
+3. Add a share-preview screenshot to `frontend/public/`
+4. Finalise outreach email with dashboard, note, and walkthrough links
 
 ## Blockers
 
